@@ -12,21 +12,43 @@ import java.util.ArrayList;
 public class RayCaster extends SimpleDrawable {
 
 	// Constants
+	private static final int STRIP_WIDTH = 1;
 
 	// Members
 	private RenderQueue m_renderQueue;
 	private BufferedImage[][][] m_texWalls;
 	private BufferedImage[] m_texPills;
 
+	private int RAYS, MAP_W, MAP_H;
+	private double VIEW_DIST, VIEW_DIST2, FOV, FOV_H, PI2;
+
+	private double m_playerX, m_playerY, m_playerRot;
+	private int m_frame;
+	
+	private int[][] m_visSprite;
+
 	/**
 	 * Constructor
 	 */
-	public RayCaster(BufferedImage[][][] texWalls, BufferedImage[] texPills) {
+	public RayCaster(BufferedImage[][][] texWalls, BufferedImage[] texPills, int map_w, int map_h) {
 		super(0, 0, Settings.RES_WIDTH, Settings.RES_HEIGHT, 0, 0);
 		m_texWalls = texWalls;
 		m_texPills = texPills;
-		
+
 		m_renderQueue = new RenderQueue();
+
+		FOV = Math.toRadians(60.0);
+		FOV_H = FOV / 2.0;
+		PI2 = Math.PI * 2.0;
+
+		RAYS = (int) Math.ceil(getW() / STRIP_WIDTH);
+		VIEW_DIST = (getW() / 2.0) / Math.tan(FOV_H);
+		VIEW_DIST2 = VIEW_DIST * VIEW_DIST;
+		
+		MAP_W = map_w;
+		MAP_H = map_h;
+		
+		m_visSprite = new int[MAP_W][MAP_H];
 	}
 
 	/**
@@ -41,10 +63,247 @@ public class RayCaster extends SimpleDrawable {
 	 * @param entities
 	 *            The arraylist of game entities
 	 */
-	public void update(Player player, int[][] walls, int[][] sprites, ArrayList<Entity> entities) {
+	public void update(Player player, int[][] walls, int[][] sprites,
+			ArrayList<Entity> entities) {
 		m_renderQueue.clear();
-		
-		
+
+		m_playerX = player.getX();
+		m_playerY = player.getY();
+		m_playerRot = player.getRot();
+
+		for (int i = 0; i < RAYS; i++) {
+			double rayScreenPos = (double) (((double) (-RAYS) / 2.0) + i)
+					* (double) STRIP_WIDTH;
+			double rayViewDist = Math.sqrt(rayScreenPos * rayScreenPos
+					+ VIEW_DIST2);
+			double rayAngle = Math.asin(rayScreenPos / rayViewDist);
+
+			castRay(Math.toRadians(m_playerRot) + rayAngle, i, walls, sprites, entities);
+		}
+
+		m_frame = ((m_frame + 1) % 1000000) + 1;
+	}
+
+	/**
+	 * Casts an individual ray into the world and gets it's bounces
+	 * 
+	 * @param angle
+	 *            The world angle of the ray
+	 */
+	private void castRay(double angle, int strip, int[][] walls, int[][] sprites, ArrayList<Entity> entities) {
+
+		angle %= PI2;
+		if (angle < 0.0) {
+			angle += PI2;
+		}
+
+		boolean right = (angle > PI2 * 0.75 || angle < PI2 * 0.25);
+		boolean up = (angle < 0 || angle > Math.PI);
+
+		double angleSin = Math.sin(angle), angleCos = Math.cos(angle);
+
+		double dist = -1, xHit = -100, yHit = -100, texX = 0;
+		int wallX, wallY;
+
+		double slope = angleSin / angleCos;
+		double dx = (right ? 1.0 : -1.0), dy = dx * slope;
+
+		double x = (right ? Math.ceil(m_playerX) : Math.floor(m_playerX));
+		double y = m_playerY + ((x - m_playerX) * slope);
+
+		boolean search = true;
+
+		boolean horizontal = true;
+		int block_type = 0;
+		while (x < MAP_W && x >= 0 && y < MAP_H && y >= 0 && search) {
+			wallX = (int) Math.max(Math.floor(x + (right ? 0 : -1)), 0);
+			wallY = (int) Math.floor(y);
+			
+			if (walls[wallX][wallY] >= Map.SOLID_BLOCK) {
+				double distX = x - m_playerX;
+				double distY = y - m_playerY;
+				dist = (distX * distX) + (distY * distY);
+				texX = y - wallY;
+				if (!right) {
+					texX = 1.0 - texX;
+				}
+
+				xHit = x;
+				yHit = y;
+				block_type = walls[wallX][wallY];
+
+				// Break
+				search = false;
+			} else {
+				if (sprites[wallX][wallY] > 0
+						&& m_visSprite[wallX][wallY] != m_frame) {
+					m_visSprite[wallX][wallY] = m_frame;
+
+					double distX = wallX + 0.5 - m_playerX;
+					double distY = wallY + 0.5 - m_playerY;
+					double sprite_dist = Math.sqrt((distX * distX)
+							+ (distY * distY));
+					double sprite_angle = Math.atan2(distY, distX)
+							- Math.toRadians(m_playerRot);
+					double sprite_size = VIEW_DIST
+							/ (Math.cos(sprite_angle) * sprite_dist);
+
+					sprite_dist *= Math
+							.cos(Math.toRadians(m_playerRot) - angle);
+					m_renderQueue.addJob(new DrawableImage(
+							m_texPills[sprites[wallX][wallY] - 1],
+							((getW() / 2.0) + (Math.tan(sprite_angle) * VIEW_DIST) - 
+									(sprite_size / 2.0)),
+							((getH() - sprite_size) / 2.0),
+							sprite_size, 
+							sprite_size), 
+							sprite_dist);
+
+				}
+				for (int a = 0; a < entities.size(); a++) {
+					if (wallX == (int) Math.floor(entities.get(a).m_x)
+							&& wallY == (int) Math.floor(entities.get(a).m_y)
+							&& !entities.get(a).m_visible) {
+						entities.get(a).m_visible = true;
+
+						double distX = entities.get(a).m_x - m_playerX;
+						double distY = entities.get(a).m_y - m_playerY;
+						double sprite_dist = Math.sqrt((distX * distX)
+								+ (distY * distY));
+						double sprite_angle = Math.atan2(distY, distX)
+								- Math.toRadians(m_playerRot);
+						double sprite_size = VIEW_DIST
+								/ (Math.cos(sprite_angle) * sprite_dist);
+
+						sprite_dist *= Math.cos(Math.toRadians(m_playerRot)
+								- angle);
+						m_renderQueue.addJob(new DrawableImage(
+								entities.get(a).getImg(),
+								((getW() / 2.0) + (Math.tan(sprite_angle) * VIEW_DIST) - 
+										(sprite_size / 2.0)),
+								((getH() - sprite_size) / 2.0),
+								sprite_size, sprite_size)
+								, sprite_dist);
+
+					}
+				}
+			}
+
+			x += dx;
+			y += dy;
+		}
+
+		slope = angleCos / angleSin;
+		dy = (up ? -1.0 : 1.0);
+		dx = dy * slope;
+
+		y = (up ? Math.floor(m_playerY) : Math.ceil(m_playerY));
+		x = m_playerX + (y - m_playerY) * slope;
+
+		search = true;
+		while (x < MAP_W && x >= 0 && y < MAP_H && y >= 0 && search) {
+			wallX = (int) Math.floor(x);
+			wallY = (int) Math.max(Math.floor(y + (up ? -1 : 0)), 0);
+
+			if (walls[wallX][wallY] >= Map.SOLID_BLOCK) {
+				double distX = x - m_playerX;
+				double distY = y - m_playerY;
+				double ndist = (distX * distX) + (distY * distY);
+
+				if (dist == -1 || ndist < dist) {
+					dist = ndist;
+					texX = x - wallX;
+					if (up) {
+						texX = 1.0 - texX;
+					}
+
+					xHit = x;
+					yHit = y;
+					block_type = walls[wallX][wallY];
+
+					// Break
+					horizontal = false;
+					search = false;
+				}
+			} else {
+				if (sprites[wallX][wallY] > 0
+						&& m_visSprite[wallX][wallY] != m_frame) {
+					m_visSprite[wallX][wallY] = m_frame;
+
+					double distX = wallX + 0.5 - m_playerX;
+					double distY = wallY + 0.5 - m_playerY;
+					double sprite_dist = Math.sqrt((distX * distX)
+							+ (distY * distY));
+					double sprite_angle = Math.atan2(distY, distX)
+							- Math.toRadians(m_playerRot);
+					double sprite_size = VIEW_DIST
+							/ (Math.cos(sprite_angle) * sprite_dist);
+
+					sprite_dist *= Math
+							.cos(Math.toRadians(m_playerRot) - angle);
+					m_renderQueue.addJob(new DrawableImage(
+							m_texPills[sprites[wallX][wallY] - 1],
+							((getW() / 2.0)
+									+ (Math.tan(sprite_angle) * VIEW_DIST) - (sprite_size / 2.0)),
+							((getH() - sprite_size) / 2.0),
+							sprite_size, sprite_size),
+							sprite_dist);
+
+				}
+				for (int a = 0; a < entities.size(); a++) {
+					if (wallX == (int) Math.floor(entities.get(a).m_x)
+							&& wallY == (int) Math.floor(entities.get(a).m_y)
+							&& !entities.get(a).m_visible) {
+						entities.get(a).m_visible = true;
+
+						double distX = entities.get(a).m_x - m_playerX;
+						double distY = entities.get(a).m_y - m_playerY;
+						double sprite_dist = Math.sqrt((distX * distX)
+								+ (distY * distY));
+						double sprite_angle = Math.atan2(distY, distX)
+								- Math.toRadians(m_playerRot);
+						double sprite_size = VIEW_DIST
+								/ (Math.cos(sprite_angle) * sprite_dist);
+
+						sprite_dist *= Math.cos(Math.toRadians(m_playerRot)
+								- angle);
+						m_renderQueue.addJob(new DrawableImage(
+								entities.get(a).getImg(),
+								((getW() / 2.0)
+										+ (Math.tan(sprite_angle) * VIEW_DIST) - (sprite_size / 2.0)),
+								((getH() - sprite_size) / 2.0),
+								sprite_size, sprite_size),
+								sprite_dist);
+					}
+				}
+
+			}
+
+			x += dx;
+			y += dy;
+		}
+
+		if (dist != -1) {
+
+			dist = Math.sqrt(dist)
+					* Math.cos(Math.toRadians(m_playerRot) - angle);
+			double stripHeight = Math.round(VIEW_DIST / dist);
+
+			double top = Math.round((getH() - stripHeight) / 2.0);
+
+			int shade = (horizontal ? 0 : 1);
+			int texel = (int) Math
+					.min(Math
+							.floor(texX
+									* (m_texWalls[block_type - Map.SOLID_BLOCK][shade].length * STRIP_WIDTH)),
+							(m_texWalls[block_type - Map.SOLID_BLOCK][shade].length * STRIP_WIDTH) - 1);
+
+			m_renderQueue.addJob(new DrawableImage(
+					m_texWalls[block_type - Map.SOLID_BLOCK][shade][texel],
+					(double) (strip * STRIP_WIDTH),
+					top, (double) STRIP_WIDTH,
+					stripHeight), dist);
+		}
 	}
 
 	/**

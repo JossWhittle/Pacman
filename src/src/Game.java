@@ -58,7 +58,7 @@ public class Game extends GPanel {
 
 		m_player = new Player(m_map.getStartX(), m_map.getStartY(), 0.0);
 		
-		m_caster = new RayCaster(texture_walls, texture_pills);
+		m_caster = new RayCaster(texture_walls, texture_pills, m_map.m_map.length, m_map.m_map[0].length);
 		
 		m_minimap = new Minimap(WIDTH - MINIMAP_W - 10, 10, MINIMAP_W, MINIMAP_H, 0,0);
 		
