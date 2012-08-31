@@ -1,15 +1,12 @@
 # Pseudo 3D Pacman Game
----
 
 This project is an attempt to create a fully functional and featured Pacman clone which is rendered using a Pseudo 3D Ray-Casting method.
 
 ## Contributing
----
 
 Those wishing to contribute to the project should 'fork' this repo and add their features on a (new) relevantly named branch. Issue me a 'pull-request' and I will merge to master.
 
 ## Contributing Textures
----
 
 This is the biggest thing the project needs as currently the rather poor textures I have were cobbled together by me in a rush to have something I can render.
 
