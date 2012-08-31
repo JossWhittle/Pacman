@@ -149,10 +149,10 @@ public abstract class GPanel extends JPanel implements MouseListener,
 	private static void buildRH() {
 		m_rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		/*
-		 * m_rh.put(RenderingHints.KEY_ANTIALIASING,
-		 * RenderingHints.VALUE_ANTIALIAS_ON);
-		 */
+		
+		/*m_rh.put(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);*/
+		 
 		m_rh.put(RenderingHints.KEY_RENDERING,
 				RenderingHints.VALUE_RENDER_QUALITY);
 		m_rh.put(RenderingHints.KEY_INTERPOLATION,

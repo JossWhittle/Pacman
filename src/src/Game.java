@@ -1,4 +1,6 @@
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -11,7 +13,8 @@ import java.util.ArrayList;
 public class Game extends GPanel {
 
 	// Constants
-	private static final int MINIMAP_W = 250, MINIMAP_H = 250;
+	private static final Color FLOOR = Color.darkGray, CEILING = Color.gray;
+	private static final int MINIMAP_SIZE = 200, UBER = 10000;
 	
 	// Members
 	private Map m_map;
@@ -20,7 +23,14 @@ public class Game extends GPanel {
 	private Minimap m_minimap;
 	
 	private ArrayList<Entity> m_entities;
+	
+	private boolean LEFT = false, RIGHT = false, FORWARD = false, BACK = false;
+	
+	private SoundChannel sndWaka;
+	private Sound sndSiren, sndOpen, sndPause, sndLife, sndDie, sndGhost, sndCherry;
 
+	private int m_uber = 0, m_pillCount = 0, m_pillStart, SCORE_X, SCORE_Y;
+	
 	public Game() {
 		init();
 
@@ -39,14 +49,14 @@ public class Game extends GPanel {
 
 		// Sound loading code HERE
 
-		int sndWaka = Loader.loadSound("/resource/sound/waka.wav");
-		int sndSiren = Loader.loadSound("/resource/sound/siren.wav");
-		int sndOpen = Loader.loadSound("/resource/sound/open_sound.wav");
-		int sndPause = Loader.loadSound("/resource/sound/pause.wav");
-		int sndLife = Loader.loadSound("/resource/sound/life.wav");
-		int sndDie = Loader.loadSound("/resource/sound/die.wav");
-		int sndGhost = Loader.loadSound("/resource/sound/ghost.wav");
-		int sndCherry = Loader.loadSound("/resource/sound/cherry.wav");
+		sndWaka = new SoundChannel("/resource/sound/waka.wav",5);
+		sndSiren = new Sound("/resource/sound/siren.wav");
+		sndOpen = new Sound("/resource/sound/open_sound.wav");
+		sndPause = new Sound("/resource/sound/pause.wav");
+		sndLife = new Sound("/resource/sound/life.wav");
+		sndDie = new Sound("/resource/sound/die.wav");
+		sndGhost = new Sound("/resource/sound/ghost.wav");
+		sndCherry = new Sound("/resource/sound/cherry.wav");
 
 		// Variable initialization code HERE
 
@@ -60,28 +70,115 @@ public class Game extends GPanel {
 		
 		m_caster = new RayCaster(texture_walls, texture_pills, m_map.m_map.length, m_map.m_map[0].length);
 		
-		m_minimap = new Minimap(WIDTH - MINIMAP_W - 10, 10, MINIMAP_W, MINIMAP_H, 0,0);
+		m_minimap = new Minimap(WIDTH - MINIMAP_SIZE - 10, 10, MINIMAP_SIZE, MINIMAP_SIZE, 0,0, m_map.m_map, m_map.m_sprite_map, texPacman);
 		
 		m_entities = new ArrayList<Entity>();
 		//m_entities.add();
+		
+		SCORE_X = WIDTH - 110;
+		SCORE_Y = MINIMAP_SIZE + 30;
 	}
 
 	protected void update(long timePassed) {
 		// Update code HERE
 
+		if (m_uber > 0) {
+			m_uber -= timePassed;
+			if (m_uber <= 0) {
+				m_uber = 0;
+				sndSiren.stop();
+			}
+		}
+
+		double turn = 0.0;
+		if (LEFT) {
+			turn += Player.LEFT;
+		}
+		if (RIGHT) {
+			turn += Player.RIGHT;
+		}
+		m_player.setTurn(turn);
+
+		double speed = 0.0;
+		if (FORWARD) {
+			speed += Player.FORWARD;
+		}
+		if (BACK) {
+			speed += Player.BACK;
+		}
+		m_player.setSpeed(speed);
+
 		m_player.update(timePassed, m_map.m_map);
+
+		int px = (int) Math.floor(m_player.getX());
+		int py = (int) Math.floor(m_player.getY());
+		if (m_map.m_sprite_map[px][py] >= Map.SPRITE_PILL) {
+			m_map.m_sprite_map[px][py] = 0;
+			m_pillCount++;
+			//m_pillFlash.fadeIn();
+			if (m_uber == 0) {
+				sndWaka.play();
+			}
+		} else if (m_map.m_sprite_map[px][py] == Map.SPRITE_MEGA) {
+			m_map.m_sprite_map[px][py] = 0;
+			//m_pillFlash.fadeIn();
+			sndSiren.loop();
+			m_uber += UBER;
+		}
 		
 		m_caster.update(m_player, m_map.m_map, m_map.m_sprite_map, m_entities);
 		
-		m_minimap.update(m_player, m_map.m_map, m_map.m_sprite_map, m_entities);
+		m_minimap.update(m_player, m_entities);
 
 	}
 
 	protected void draw(Graphics2D g) {
 		// Draw code HERE (No update calls!)
+		g.setColor(CEILING);
+		g.fillRect(0, 0, WIDTH, (int) (HEIGHT / 2.0));
+		g.setColor(FLOOR);
+		g.fillRect(0, (int) (HEIGHT / 2.0), WIDTH, (int) (HEIGHT / 2.0));
 		
 		m_caster.draw(g);
 		m_minimap.draw(g);
+		
+		g.setColor(Color.yellow);
+		g.drawString("" + m_pillCount, SCORE_X, SCORE_Y);
+		g.drawString("/", SCORE_X + 40, SCORE_Y);
+		g.drawString("" + m_pillStart, SCORE_X + 50, SCORE_Y);
+	}
+	
+	/*
+	 * Keyboard Handlers
+	 */
+	public void keyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_UP) {
+			FORWARD = false;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+			BACK = false;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+			LEFT = false;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			RIGHT = false;
+		}
+	}
+
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_UP) {
+			FORWARD = true;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+			BACK = true;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+			LEFT = true;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			RIGHT = true;
+		}
 	}
 
 }
