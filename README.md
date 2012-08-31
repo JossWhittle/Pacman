@@ -1,5 +1,7 @@
 # Pseudo 3D Pacman Game
 
+![Latest Screenshot: 31 August 2012](screenshot/31 August 2012.png)
+
 This project is an attempt to create a fully functional and featured Pacman clone which is rendered using a Pseudo 3D Ray-Casting method.
 
 ## Contributing
