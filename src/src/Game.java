@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class Game extends GPanel {
 
 	// Constants
-	private static final Color FLOOR = new Color(13,10,10), CEILING = new Color(7,7,7);
+	private static final Color FLOOR = new Color(7,7,7), CEILING = new Color(7,7,7); // new Color(13,10,10)
 	private static final int MINIMAP_SIZE = 175, UBER = 10000;
 	
 	// Members

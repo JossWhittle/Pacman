@@ -154,13 +154,13 @@ public class RayCaster extends SimpleDrawable {
 
 					sprite_dist *= Math
 							.cos(Math.toRadians(m_playerRot) - angle);
-					m_renderQueue.addJob(new DrawableImage(
+					m_renderQueue.addJob(new DepthImage(
 							m_texPills[m_sprite_map[wallX][wallY] - 1],
 							((getW() / 2.0) + (Math.tan(sprite_angle) * VIEW_DIST) - 
 									(sprite_size / 2.0)),
 							((getH() - sprite_size) / 2.0),
 							sprite_size, 
-							sprite_size), 
+							sprite_size,sprite_dist,false), 
 							sprite_dist);
 
 				}
@@ -181,12 +181,12 @@ public class RayCaster extends SimpleDrawable {
 
 						sprite_dist *= Math.cos(Math.toRadians(m_playerRot)
 								- angle);
-						m_renderQueue.addJob(new DrawableImage(
+						m_renderQueue.addJob(new DepthImage(
 								entities.get(a).getImg(),
 								((getW() / 2.0) + (Math.tan(sprite_angle) * VIEW_DIST) - 
 										(sprite_size / 2.0)),
 								((getH() - sprite_size) / 2.0),
-								sprite_size, sprite_size)
+								sprite_size, sprite_size,sprite_dist,false)
 								, sprite_dist);
 
 					}
@@ -245,12 +245,12 @@ public class RayCaster extends SimpleDrawable {
 
 					sprite_dist *= Math
 							.cos(Math.toRadians(m_playerRot) - angle);
-					m_renderQueue.addJob(new DrawableImage(
+					m_renderQueue.addJob(new DepthImage(
 							m_texPills[m_sprite_map[wallX][wallY] - 1],
 							((getW() / 2.0)
 									+ (Math.tan(sprite_angle) * VIEW_DIST) - (sprite_size / 2.0)),
 							((getH() - sprite_size) / 2.0),
-							sprite_size, sprite_size),
+							sprite_size, sprite_size,sprite_dist,false),
 							sprite_dist);
 
 				}
@@ -271,12 +271,12 @@ public class RayCaster extends SimpleDrawable {
 
 						sprite_dist *= Math.cos(Math.toRadians(m_playerRot)
 								- angle);
-						m_renderQueue.addJob(new DrawableImage(
+						m_renderQueue.addJob(new DepthImage(
 								entities.get(a).getImg(),
 								((getW() / 2.0)
 										+ (Math.tan(sprite_angle) * VIEW_DIST) - (sprite_size / 2.0)),
 								((getH() - sprite_size) / 2.0),
-								sprite_size, sprite_size),
+								sprite_size, sprite_size,sprite_dist,false),
 								sprite_dist);
 					}
 				}
@@ -300,11 +300,11 @@ public class RayCaster extends SimpleDrawable {
 			int shade = (horizontal ? 0 : 1);
 			int texel = (int) Math.min(Math.floor(texX * (Settings.TEX_WIDTH * STRIP_WIDTH)), (Settings.TEX_WIDTH * STRIP_WIDTH) - 1);
 
-			m_renderQueue.addJob(new DrawableImage(
+			m_renderQueue.addJob(new DepthImage(
 					m_texWalls[wall.getSet()][wall.getTile()][shade][texel],
 					(double) (strip * STRIP_WIDTH),
 					top, (double) STRIP_WIDTH,
-					stripHeight), dist);
+					stripHeight, dist), dist);
 		}
 	}
 
