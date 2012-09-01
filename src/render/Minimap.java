@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * @author Joss
  * 
  */
-public class Minimap extends SimpleDrawable {
+public class Minimap extends Drawable {
 
 	// Constants
 	
@@ -23,7 +23,7 @@ public class Minimap extends SimpleDrawable {
 	private int MAP_W, MAP_H;
 	
 	protected Minimap(double x, double y, double w, double h, double ox, double oy, int[][] map, int[][] sprite_map, int pimg) {
-		super(x, y, w, h, ox, oy);
+		super(x, y, w, h, ox, oy, 0, 0.5);
 		m_map = map;
 		m_sprite_map = sprite_map;
 		
@@ -41,25 +41,25 @@ public class Minimap extends SimpleDrawable {
 		m_entities = entities;
 	}
 
-	public void draw(Graphics2D g) {
+	protected void drawContent(Graphics2D g) {
 		double BLOCK_W = getW() / MAP_W, BLOCK_H = getH() / MAP_H;
 		
 		for (int x = 0; x < MAP_W; x++) {
 			for (int y = 0; y < MAP_H; y++) {
 				if (m_map[x][y] >= Map.SOLID_BLOCK) {
 					g.setColor(Map.BLOCK_COLOUR[m_map[x][y]-1]);
-					g.fillRect((int)(getX() + (x * BLOCK_W)), (int)(getY() + (y * BLOCK_H)), (int)Math.ceil(BLOCK_W), (int)Math.ceil(BLOCK_H));
+					g.fillRect((int)(getX() + (x * BLOCK_W))-1, (int)(getY() + (y * BLOCK_H))-1, (int)Math.ceil(BLOCK_W)+1, (int)Math.ceil(BLOCK_H)+1);
 				} else if (m_sprite_map[x][y] >= Map.SPRITE_PILL) {
 					
 					g.setColor(Map.SPRITE_COLOUR[0]);
-					g.fill(new Ellipse2D.Double(((getX() - getOX()) + (x * BLOCK_W) + 2),
-							((getY() - getOY()) + (y * BLOCK_H) + 2),
-							Math.ceil(BLOCK_W - 4), Math.ceil(BLOCK_H - 4)));
+					g.fill(new Ellipse2D.Double(((getX() - getOX()) + (x * BLOCK_W) + 2)-1,
+							((getY() - getOY()) + (y * BLOCK_H) + 2)-1,
+							Math.ceil(BLOCK_W - 4)+1, Math.ceil(BLOCK_H - 4)+1));
 				} else if (m_sprite_map[x][y] == Map.SPRITE_MEGA) {
 					g.setColor(Map.SPRITE_COLOUR[1]);
-					g.fill(new Ellipse2D.Double(((getX() - getOX()) + Math.ceil(x * BLOCK_W) + 1),
-							((getY() - getOY()) + (y * BLOCK_H) + 1),
-							Math.ceil(BLOCK_W - 2), Math.ceil(BLOCK_H - 2)));
+					g.fill(new Ellipse2D.Double(((getX() - getOX()) + Math.ceil(x * BLOCK_W) + 1)-1,
+							((getY() - getOY()) + (y * BLOCK_H) + 1)-1,
+							Math.ceil(BLOCK_W - 2)+1, Math.ceil(BLOCK_H - 2)+1));
 				}
 			}
 		}
@@ -67,8 +67,11 @@ public class Minimap extends SimpleDrawable {
 		double px = ((getX() - getOX()) + (m_playerX * BLOCK_W));
 		double py = ((getY() - getOY()) + (m_playerY * BLOCK_H));
 		
-		m_playerSprite.setW(BLOCK_W);
-		m_playerSprite.setH(BLOCK_H);
+		m_playerSprite.setW(BLOCK_W*1.5);
+		m_playerSprite.setH(BLOCK_H*1.5);
+		m_playerSprite.setOX((BLOCK_W*1.5)/2);
+		m_playerSprite.setOY((BLOCK_H*1.5)/2);
+		
 		m_playerSprite.setXY(px,py);
 		m_playerSprite.setRot(m_playerR);
 		m_playerSprite.draw(g);

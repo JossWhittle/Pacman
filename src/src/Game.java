@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class Game extends GPanel {
 
 	// Constants
-	private static final Color FLOOR = Color.darkGray, CEILING = Color.gray;
+	private static final Color FLOOR = new Color(28,25,25), CEILING = new Color(20,20,20);
 	private static final int MINIMAP_SIZE = 200, UBER = 10000;
 	
 	// Members
@@ -43,6 +43,20 @@ public class Game extends GPanel {
 		// Texture loading code HERE
 
 		int texWalls = Loader.loadImage("/resource/texture/pacmanwalls.png");
+		
+		int[][] texWalls_arr = {{
+			Loader.loadImage("/resource/texture/dev/gif/wall_marine_1.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/wall_marine_2.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/wall_marine_3.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/wall_marine_4.gif")
+		},
+		{
+			Loader.loadImage("/resource/texture/dev/gif/wall_alien_1.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/wall_alien_2.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/wall_alien_3.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/wall_alien_4.gif")
+		}};
+		
 		int texGhosts = Loader.loadImage("/resource/texture/ghost.png");
 		int texPacman = Loader.loadImage("/resource/texture/pacman.png");
 		int texPills = Loader.loadImage("/resource/texture/pills_small.png");
@@ -77,6 +91,31 @@ public class Game extends GPanel {
 		
 		SCORE_X = WIDTH - 110;
 		SCORE_Y = MINIMAP_SIZE + 30;
+		
+		/*System.out.println("\npublic Block[][] m_map = {");
+		for (int y = 0; y < m_map.m_map[0].length; y++) {
+			System.out.println("\t{");
+			for (int x = 0; x < m_map.m_map.length; x++) {
+				String block = "null";
+				if (m_map.m_map[x][y] >= 3) {
+					String block_type = "Wall.TEX_OUTER";
+					//String block_set = "Wall.TEX_OUTER";
+					
+					if (m_map.m_map[x][y] == 7) {
+						block_type = "Wall.TEX_ORANGE";
+					} else if (m_map.m_map[x][y] == 6) {
+						block_type = "Wall.TEX_BLUE";
+					} else if (m_map.m_map[x][y] == 5 || m_map.m_map[x][y] == 5) {
+						block_type = "Wall.TEX_GATE";
+					}
+					
+					block = "new Block("+block_type+")";
+				}
+				System.out.println("\t\t"+block+(x < m_map.m_map.length-1 ? "," : ""));
+			}
+			System.out.println("\t}"+(y < m_map.m_map[0].length-1 ? "," : ""));
+		}
+		System.out.println("};");*/
 	}
 
 	protected void update(long timePassed) {
