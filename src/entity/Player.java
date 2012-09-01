@@ -15,6 +15,8 @@ public class Player {
 	// Members
 	private double m_x, m_y, m_rot, m_turn = 0, m_speed = 0, m_rotspeed = 0,
 			m_oldturn = 0;
+	
+	private Block[][] m_map;
 
 	/**
 	 * Constructor
@@ -26,10 +28,12 @@ public class Player {
 	 * @param r
 	 *            The rotation angle in degrees
 	 */
-	public Player(double x, double y, double r) {
+	public Player(double x, double y, double r, Block[][] map) {
 		m_x = x;
 		m_y = y;
 		m_rot = r;
+		
+		m_map = map;
 	}
 
 	/**
@@ -38,7 +42,7 @@ public class Player {
 	 * @param timePassed
 	 *            The amount of time since the last call
 	 */
-	public void update(long timePassed, int[][] map) {
+	public void update(long timePassed) {
 		double ticks = (double) timePassed / Game.FPS;
 
 		// Movement acceleration
@@ -62,17 +66,17 @@ public class Player {
 		double x = m_x + Math.cos(Math.toRadians(m_rot)) * moveStep;
 		double y = m_y + Math.sin(Math.toRadians(m_rot)) * moveStep;
 
-		int width = map.length, height = map[0].length;
+		int width = m_map.length, height = m_map[0].length;
 		if (!(x < 0 || x >= width || y < 0 || y >= height)) {
 
 			int blockX = (int) Math.floor(x), blockY = (int) Math.floor(y);
 
-			if (canMove(blockX, blockY, map)) {
+			if (canMove(blockX, blockY)) {
 
-				boolean blockTop = canMove(blockX, blockY - 1, map);
-				boolean blockBottom = canMove(blockX, blockY + 1, map);
-				boolean blockLeft = canMove(blockX - 1, blockY, map);
-				boolean blockRight = canMove(blockX + 1, blockY, map);
+				boolean blockTop = canMove(blockX, blockY - 1);
+				boolean blockBottom = canMove(blockX, blockY + 1);
+				boolean blockLeft = canMove(blockX - 1, blockY);
+				boolean blockRight = canMove(blockX + 1, blockY);
 
 				if (!blockTop && y - blockY < RADIUS) {
 					y = blockY + RADIUS;
@@ -107,8 +111,8 @@ public class Player {
 	 *            The map to check on
 	 * @return Whether it is possible to move
 	 */
-	private boolean canMove(int x, int y, int[][] map) {
-		return (map[x][y] < Map.SOLID_BLOCK);
+	private boolean canMove(int x, int y) {
+		return (m_map[x][y] == null);
 	}
 
 	/**

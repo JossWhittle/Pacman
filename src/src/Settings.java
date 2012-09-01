@@ -7,7 +7,9 @@ public class Settings {
 
 	RES_WIDTH = 1280, RES_HEIGHT = 720,
 
-	ZX80 = 1;
+	ZX80 = 1,
+	
+	TEX_WIDTH = 128;
 
 	/**
 	 * Loads and sets all the settings

@@ -1,3 +1,5 @@
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -25,29 +27,29 @@ public class Content {
 	 *            The width of the strip to build for each wall
 	 * @return The array
 	 */
-	public static BufferedImage[][][] processWalls(int img, int num, int strip) {
-		return processWalls(Loader.getImage(img), num, strip);
-	}
+	public static BufferedImage[][][][] processWalls(int[][] in, int strip) {
+		BufferedImage[][][][] walls = new BufferedImage[in.length][in[0].length][2][];
 
-	/**
-	 * Takes an sprite map of walls and builds a wall array
-	 * 
-	 * @param img
-	 *            The image to split
-	 * @param num
-	 *            The number of walls contained in the image
-	 * @param strip
-	 *            The width of the strip to build for each wall
-	 * @return The array
-	 */
-	public static BufferedImage[][][] processWalls(BufferedImage img, int num,
-			int strip) {
-		BufferedImage[][] smap = Loader.splitImage(img, 2, num);
-		BufferedImage[][][] walls = new BufferedImage[num][2][];
+		RenderingHints rh = Game.getRH();
+		
+		for (int x = 0; x < in.length; x++) {
+			for (int y = 0; y < in[0].length; y++) {
+				walls[x][y][0] = Loader.splitImage(in[x][y], strip);
+				
+				BufferedImage tmp = new BufferedImage(Loader.getImage(in[x][y]).getWidth(), Loader.getImage(in[x][y]).getHeight(), BufferedImage.TYPE_INT_ARGB);
 
-		for (int x = 0; x < smap.length; x++) {
-			for (int y = 0; y < smap[0].length; y++) {
-				walls[x][y] = Loader.splitImage(smap[x][y], strip);
+				Graphics2D g = tmp.createGraphics();
+				g.setRenderingHints(rh);
+				g.setColor(Color.white);
+				g.fillRect(0, 0, tmp.getWidth(), tmp.getHeight());
+				
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+						(float) 0.99));
+				
+				g.drawImage(Loader.getImage(in[x][y]), 0, 0, tmp.getWidth(), tmp.getHeight(), null);
+				g.dispose();
+				
+				walls[x][y][1] = Loader.splitImage(tmp, strip);
 			}
 		}
 

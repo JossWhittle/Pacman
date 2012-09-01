@@ -16,7 +16,7 @@ public class RayCaster extends SimpleDrawable {
 
 	// Members
 	private RenderQueue m_renderQueue;
-	private BufferedImage[][][] m_texWalls;
+	private BufferedImage[][][][] m_texWalls;
 	private BufferedImage[] m_texPills;
 
 	private int RAYS, MAP_W, MAP_H;
@@ -25,12 +25,13 @@ public class RayCaster extends SimpleDrawable {
 	private double m_playerX, m_playerY, m_playerRot;
 	private int m_frame;
 	
-	private int[][] m_visSprite;
+	private int[][] m_visSprite, m_sprite_map;
+	private Block[][] m_map;
 
 	/**
 	 * Constructor
 	 */
-	public RayCaster(BufferedImage[][][] texWalls, BufferedImage[] texPills, int map_w, int map_h) {
+	public RayCaster(BufferedImage[][][][] texWalls, BufferedImage[] texPills, Block[][] map, int[][] sprite_map) {
 		super(0, 0, Settings.RES_WIDTH, Settings.RES_HEIGHT, 0, 0);
 		m_texWalls = texWalls;
 		m_texPills = texPills;
@@ -45,8 +46,11 @@ public class RayCaster extends SimpleDrawable {
 		VIEW_DIST = (getW() / 2.0) / Math.tan(FOV_H);
 		VIEW_DIST2 = VIEW_DIST * VIEW_DIST;
 		
-		MAP_W = map_w;
-		MAP_H = map_h;
+		m_map = map;
+		m_sprite_map = sprite_map;
+		
+		MAP_W = map.length;
+		MAP_H = map[0].length;
 		
 		m_visSprite = new int[MAP_W][MAP_H];
 	}
@@ -63,7 +67,7 @@ public class RayCaster extends SimpleDrawable {
 	 * @param entities
 	 *            The arraylist of game entities
 	 */
-	public void update(Player player, int[][] walls, int[][] sprites,
+	public void update(Player player,
 			ArrayList<Entity> entities) {
 		m_renderQueue.clear();
 
@@ -78,7 +82,7 @@ public class RayCaster extends SimpleDrawable {
 					+ VIEW_DIST2);
 			double rayAngle = Math.asin(rayScreenPos / rayViewDist);
 
-			castRay(Math.toRadians(m_playerRot) + rayAngle, i, walls, sprites, entities);
+			castRay(Math.toRadians(m_playerRot) + rayAngle, i, entities);
 		}
 
 		m_frame = ((m_frame + 1) % 1000000) + 1;
@@ -90,7 +94,7 @@ public class RayCaster extends SimpleDrawable {
 	 * @param angle
 	 *            The world angle of the ray
 	 */
-	private void castRay(double angle, int strip, int[][] walls, int[][] sprites, ArrayList<Entity> entities) {
+	private void castRay(double angle, int strip, ArrayList<Entity> entities) {
 
 		angle %= PI2;
 		if (angle < 0.0) {
@@ -114,12 +118,12 @@ public class RayCaster extends SimpleDrawable {
 		boolean search = true;
 
 		boolean horizontal = true;
-		int block_type = 0;
+		Block block = null;
 		while (x < MAP_W && x >= 0 && y < MAP_H && y >= 0 && search) {
 			wallX = (int) Math.max(Math.floor(x + (right ? 0 : -1)), 0);
 			wallY = (int) Math.floor(y);
 			
-			if (walls[wallX][wallY] >= Map.SOLID_BLOCK) {
+			if (m_map[wallX][wallY] != null) {
 				double distX = x - m_playerX;
 				double distY = y - m_playerY;
 				dist = (distX * distX) + (distY * distY);
@@ -130,12 +134,12 @@ public class RayCaster extends SimpleDrawable {
 
 				xHit = x;
 				yHit = y;
-				block_type = walls[wallX][wallY];
+				block = m_map[wallX][wallY];
 
 				// Break
 				search = false;
 			} else {
-				if (sprites[wallX][wallY] > 0
+				if (m_sprite_map[wallX][wallY] > 0
 						&& m_visSprite[wallX][wallY] != m_frame) {
 					m_visSprite[wallX][wallY] = m_frame;
 
@@ -151,7 +155,7 @@ public class RayCaster extends SimpleDrawable {
 					sprite_dist *= Math
 							.cos(Math.toRadians(m_playerRot) - angle);
 					m_renderQueue.addJob(new DrawableImage(
-							m_texPills[sprites[wallX][wallY] - 1],
+							m_texPills[m_sprite_map[wallX][wallY] - 1],
 							((getW() / 2.0) + (Math.tan(sprite_angle) * VIEW_DIST) - 
 									(sprite_size / 2.0)),
 							((getH() - sprite_size) / 2.0),
@@ -205,7 +209,7 @@ public class RayCaster extends SimpleDrawable {
 			wallX = (int) Math.floor(x);
 			wallY = (int) Math.max(Math.floor(y + (up ? -1 : 0)), 0);
 
-			if (walls[wallX][wallY] >= Map.SOLID_BLOCK) {
+			if (m_map[wallX][wallY] != null) {
 				double distX = x - m_playerX;
 				double distY = y - m_playerY;
 				double ndist = (distX * distX) + (distY * distY);
@@ -219,14 +223,14 @@ public class RayCaster extends SimpleDrawable {
 
 					xHit = x;
 					yHit = y;
-					block_type = walls[wallX][wallY];
+					block = m_map[wallX][wallY];
 
 					// Break
 					horizontal = false;
 					search = false;
 				}
 			} else {
-				if (sprites[wallX][wallY] > 0
+				if (m_sprite_map[wallX][wallY] > 0
 						&& m_visSprite[wallX][wallY] != m_frame) {
 					m_visSprite[wallX][wallY] = m_frame;
 
@@ -242,7 +246,7 @@ public class RayCaster extends SimpleDrawable {
 					sprite_dist *= Math
 							.cos(Math.toRadians(m_playerRot) - angle);
 					m_renderQueue.addJob(new DrawableImage(
-							m_texPills[sprites[wallX][wallY] - 1],
+							m_texPills[m_sprite_map[wallX][wallY] - 1],
 							((getW() / 2.0)
 									+ (Math.tan(sprite_angle) * VIEW_DIST) - (sprite_size / 2.0)),
 							((getH() - sprite_size) / 2.0),
@@ -290,16 +294,14 @@ public class RayCaster extends SimpleDrawable {
 			double stripHeight = Math.round(VIEW_DIST / dist);
 
 			double top = Math.round((getH() - stripHeight) / 2.0);
+			
+			Wall wall = block.getFace(angle, horizontal);
 
 			int shade = (horizontal ? 0 : 1);
-			int texel = (int) Math
-					.min(Math
-							.floor(texX
-									* (m_texWalls[block_type - Map.SOLID_BLOCK][shade].length * STRIP_WIDTH)),
-							(m_texWalls[block_type - Map.SOLID_BLOCK][shade].length * STRIP_WIDTH) - 1);
+			int texel = (int) Math.min(Math.floor(texX * (Settings.TEX_WIDTH * STRIP_WIDTH)), (Settings.TEX_WIDTH * STRIP_WIDTH) - 1);
 
 			m_renderQueue.addJob(new DrawableImage(
-					m_texWalls[block_type - Map.SOLID_BLOCK][shade][texel],
+					m_texWalls[wall.getSet()][wall.getTile()][shade][texel],
 					(double) (strip * STRIP_WIDTH),
 					top, (double) STRIP_WIDTH,
 					stripHeight), dist);

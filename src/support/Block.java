@@ -25,6 +25,21 @@ public class Block {
 		m_west = w;
 	}
 	
+	public Wall getFace(double angle, boolean horizontal) {
+		if (horizontal) {
+			double dx = Math.cos(Math.toRadians(angle));	
+			if (dx < 0) {
+				return m_east;
+			}
+			return m_west;
+		}
+		double dy = Math.sin(Math.toRadians(angle));
+		if (dy < 0) {
+			return m_south;
+		}
+		return m_north;
+	}
+	
 	public Wall getN() {
 		return m_north;
 	}

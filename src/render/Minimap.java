@@ -15,14 +15,15 @@ public class Minimap extends Drawable {
 	
 	// Members
 	private double m_playerX, m_playerY, m_playerR;
-	private int[][] m_map, m_sprite_map;
+	private int[][] m_sprite_map;
+	private Block[][] m_map;
 	ArrayList<Entity> m_entities;
 	
 	private DrawableImage m_playerSprite;
 	
 	private int MAP_W, MAP_H;
 	
-	protected Minimap(double x, double y, double w, double h, double ox, double oy, int[][] map, int[][] sprite_map, int pimg) {
+	protected Minimap(double x, double y, double w, double h, double ox, double oy, Block[][] map, int[][] sprite_map, int pimg) {
 		super(x, y, w, h, ox, oy, 0, 0.5);
 		m_map = map;
 		m_sprite_map = sprite_map;
@@ -44,28 +45,28 @@ public class Minimap extends Drawable {
 	protected void drawContent(Graphics2D g) {
 		double BLOCK_W = getW() / MAP_W, BLOCK_H = getH() / MAP_H;
 		
-		for (int x = 0; x < MAP_W; x++) {
-			for (int y = 0; y < MAP_H; y++) {
-				if (m_map[x][y] >= Map.SOLID_BLOCK) {
-					g.setColor(Map.BLOCK_COLOUR[m_map[x][y]-1]);
-					g.fillRect((int)(getX() + (x * BLOCK_W))-1, (int)(getY() + (y * BLOCK_H))-1, (int)Math.ceil(BLOCK_W)+1, (int)Math.ceil(BLOCK_H)+1);
+		for (int y = 0; y < MAP_H; y++) {
+			for (int x = 0; x < MAP_W; x++) {
+				if (m_map[x][y] != null) {
+					g.setColor(Map.BLOCK_COLOUR[2]);
+					g.fillRect((int)(getX() + ((MAP_H - y) * BLOCK_W))-1, (int)(getY() + (x * BLOCK_H))-1, (int)Math.ceil(BLOCK_W)+1, (int)Math.ceil(BLOCK_H)+1);
 				} else if (m_sprite_map[x][y] >= Map.SPRITE_PILL) {
 					
-					g.setColor(Map.SPRITE_COLOUR[0]);
-					g.fill(new Ellipse2D.Double(((getX() - getOX()) + (x * BLOCK_W) + 2)-1,
-							((getY() - getOY()) + (y * BLOCK_H) + 2)-1,
+					g.setColor(Color.orange);
+					g.fill(new Ellipse2D.Double(((getX() - getOX()) + ((MAP_H - y) * BLOCK_W) + 2)-1,
+							((getY() - getOY()) + (x * BLOCK_H) + 2)-1,
 							Math.ceil(BLOCK_W - 4)+1, Math.ceil(BLOCK_H - 4)+1));
 				} else if (m_sprite_map[x][y] == Map.SPRITE_MEGA) {
-					g.setColor(Map.SPRITE_COLOUR[1]);
-					g.fill(new Ellipse2D.Double(((getX() - getOX()) + Math.ceil(x * BLOCK_W) + 1)-1,
-							((getY() - getOY()) + (y * BLOCK_H) + 1)-1,
+					g.setColor(Color.orange);
+					g.fill(new Ellipse2D.Double(((getX() - getOX()) + Math.ceil((MAP_H - y) * BLOCK_W) + 1)-1,
+							((getY() - getOY()) + (x * BLOCK_H) + 1)-1,
 							Math.ceil(BLOCK_W - 2)+1, Math.ceil(BLOCK_H - 2)+1));
 				}
 			}
 		}
 		
-		double px = ((getX() - getOX()) + (m_playerX * BLOCK_W));
-		double py = ((getY() - getOY()) + (m_playerY * BLOCK_H));
+		double px = ((getX() - getOX()) + ((MAP_H - m_playerY) * BLOCK_W));
+		double py = ((getY() - getOY()) + (m_playerX * BLOCK_H));
 		
 		m_playerSprite.setW(BLOCK_W*1.5);
 		m_playerSprite.setH(BLOCK_H*1.5);
@@ -73,7 +74,7 @@ public class Minimap extends Drawable {
 		m_playerSprite.setOY((BLOCK_H*1.5)/2);
 		
 		m_playerSprite.setXY(px,py);
-		m_playerSprite.setRot(m_playerR);
+		m_playerSprite.setRot(m_playerR+90);
 		m_playerSprite.draw(g);
 	}
 

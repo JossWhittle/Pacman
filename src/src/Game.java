@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class Game extends GPanel {
 
 	// Constants
-	private static final Color FLOOR = new Color(28,25,25), CEILING = new Color(20,20,20);
+	private static final Color FLOOR = new Color(18,15,15), CEILING = new Color(10,10,10);
 	private static final int MINIMAP_SIZE = 200, UBER = 10000;
 	
 	// Members
@@ -42,19 +42,17 @@ public class Game extends GPanel {
 
 		// Texture loading code HERE
 
-		int texWalls = Loader.loadImage("/resource/texture/pacmanwalls.png");
-		
-		int[][] texWalls_arr = {{
-			Loader.loadImage("/resource/texture/dev/gif/wall_marine_1.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/wall_marine_2.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/wall_marine_3.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/wall_marine_4.gif")
+		int[][] texWalls = {{
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_1.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_2.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_3.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_4.gif")
 		},
 		{
-			Loader.loadImage("/resource/texture/dev/gif/wall_alien_1.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/wall_alien_2.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/wall_alien_3.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/wall_alien_4.gif")
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_1.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_2.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_3.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_3.gif")
 		}};
 		
 		int texGhosts = Loader.loadImage("/resource/texture/ghost.png");
@@ -74,15 +72,15 @@ public class Game extends GPanel {
 
 		// Variable initialization code HERE
 
-		BufferedImage[][][] texture_walls = Content.processWalls(texWalls, 5, Settings.STRIP_WIDTH);
+		BufferedImage[][][][] texture_walls = Content.processWalls(texWalls, Settings.STRIP_WIDTH);
 		BufferedImage[][] texture_ghosts = Content.processGhosts(texGhosts, 8, 5);
 		BufferedImage[] texture_pills = Content.processPills(texPills, 10, 128);
 
-		m_map = new Map(mapWalls, mapSprites, mapPaths);
+		m_map = new Map();
 
-		m_player = new Player(m_map.getStartX(), m_map.getStartY(), 0.0);
+		m_player = new Player(m_map.getStartX(), m_map.getStartY(), 270.0, m_map.m_map);
 		
-		m_caster = new RayCaster(texture_walls, texture_pills, m_map.m_map.length, m_map.m_map[0].length);
+		m_caster = new RayCaster(texture_walls, texture_pills, m_map.m_map, m_map.m_sprite_map);
 		
 		m_minimap = new Minimap(WIDTH - MINIMAP_SIZE - 10, 10, MINIMAP_SIZE, MINIMAP_SIZE, 0,0, m_map.m_map, m_map.m_sprite_map, texPacman);
 		
@@ -91,31 +89,6 @@ public class Game extends GPanel {
 		
 		SCORE_X = WIDTH - 110;
 		SCORE_Y = MINIMAP_SIZE + 30;
-		
-		/*System.out.println("\npublic Block[][] m_map = {");
-		for (int y = 0; y < m_map.m_map[0].length; y++) {
-			System.out.println("\t{");
-			for (int x = 0; x < m_map.m_map.length; x++) {
-				String block = "null";
-				if (m_map.m_map[x][y] >= 3) {
-					String block_type = "Wall.TEX_OUTER";
-					//String block_set = "Wall.TEX_OUTER";
-					
-					if (m_map.m_map[x][y] == 7) {
-						block_type = "Wall.TEX_ORANGE";
-					} else if (m_map.m_map[x][y] == 6) {
-						block_type = "Wall.TEX_BLUE";
-					} else if (m_map.m_map[x][y] == 5 || m_map.m_map[x][y] == 5) {
-						block_type = "Wall.TEX_GATE";
-					}
-					
-					block = "new Block("+block_type+")";
-				}
-				System.out.println("\t\t"+block+(x < m_map.m_map.length-1 ? "," : ""));
-			}
-			System.out.println("\t}"+(y < m_map.m_map[0].length-1 ? "," : ""));
-		}
-		System.out.println("};");*/
 	}
 
 	protected void update(long timePassed) {
@@ -147,7 +120,7 @@ public class Game extends GPanel {
 		}
 		m_player.setSpeed(speed);
 
-		m_player.update(timePassed, m_map.m_map);
+		m_player.update(timePassed);
 
 		int px = (int) Math.floor(m_player.getX());
 		int py = (int) Math.floor(m_player.getY());
@@ -165,7 +138,7 @@ public class Game extends GPanel {
 			m_uber += UBER;
 		}
 		
-		m_caster.update(m_player, m_map.m_map, m_map.m_sprite_map, m_entities);
+		m_caster.update(m_player, m_entities);
 		
 		m_minimap.update(m_player, m_entities);
 
