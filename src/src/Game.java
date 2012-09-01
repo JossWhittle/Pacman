@@ -13,8 +13,8 @@ import java.util.ArrayList;
 public class Game extends GPanel {
 
 	// Constants
-	private static final Color FLOOR = new Color(18,15,15), CEILING = new Color(10,10,10);
-	private static final int MINIMAP_SIZE = 200, UBER = 10000;
+	private static final Color FLOOR = new Color(13,10,10), CEILING = new Color(7,7,7);
+	private static final int MINIMAP_SIZE = 175, UBER = 10000;
 	
 	// Members
 	private Map m_map;
@@ -28,6 +28,8 @@ public class Game extends GPanel {
 	
 	private SoundChannel sndWaka;
 	private Sound sndSiren, sndOpen, sndPause, sndLife, sndDie, sndGhost, sndCherry;
+	
+	private Fader m_vignette;
 
 	private int m_uber = 0, m_pillCount = 0, m_pillStart, SCORE_X, SCORE_Y;
 	
@@ -41,6 +43,8 @@ public class Game extends GPanel {
 		int mapPaths = Loader.loadImage("/resource/map/pacmanmap_paths.gif");
 
 		// Texture loading code HERE
+		
+		int vignette = Loader.loadImage("/resource/texture/vignette.png");
 
 		int[][] texWalls = {{
 			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_1.gif"),
@@ -78,17 +82,20 @@ public class Game extends GPanel {
 
 		m_map = new Map();
 
-		m_player = new Player(m_map.getStartX(), m_map.getStartY(), 270.0, m_map.m_map);
+		m_player = new Player(m_map.getStartX()+0.5, m_map.getStartY()+0.5, 180, m_map.m_map);
 		
 		m_caster = new RayCaster(texture_walls, texture_pills, m_map.m_map, m_map.m_sprite_map);
 		
-		m_minimap = new Minimap(WIDTH - MINIMAP_SIZE - 10, 10, MINIMAP_SIZE, MINIMAP_SIZE, 0,0, m_map.m_map, m_map.m_sprite_map, texPacman);
+		m_minimap = new Minimap(WIDTH - MINIMAP_SIZE - 30, 10, MINIMAP_SIZE, MINIMAP_SIZE, 0,0, m_map.m_map, m_map.m_sprite_map, texPacman);
 		
 		m_entities = new ArrayList<Entity>();
 		//m_entities.add();
 		
 		SCORE_X = WIDTH - 110;
 		SCORE_Y = MINIMAP_SIZE + 30;
+		m_pillStart = m_map.getSpriteCount();
+		
+		m_vignette = new Fader(vignette, 0,0,WIDTH,HEIGHT);
 	}
 
 	protected void update(long timePassed) {
@@ -99,6 +106,7 @@ public class Game extends GPanel {
 			if (m_uber <= 0) {
 				m_uber = 0;
 				sndSiren.stop();
+				m_vignette.setFadeTarget(new double[][]{{1,2000}});
 			}
 		}
 
@@ -127,13 +135,15 @@ public class Game extends GPanel {
 		if (m_map.m_sprite_map[px][py] >= Map.SPRITE_PILL) {
 			m_map.m_sprite_map[px][py] = 0;
 			m_pillCount++;
-			//m_pillFlash.fadeIn();
+			
 			if (m_uber == 0) {
 				sndWaka.play();
+				m_vignette.setFadeTarget(new double[][]{{0.8,50},{1,100}});
 			}
 		} else if (m_map.m_sprite_map[px][py] == Map.SPRITE_MEGA) {
 			m_map.m_sprite_map[px][py] = 0;
-			//m_pillFlash.fadeIn();
+			
+			m_vignette.setFadeTarget(new double[][]{{0.75,50}});
 			sndSiren.loop();
 			m_uber += UBER;
 		}
@@ -141,6 +151,8 @@ public class Game extends GPanel {
 		m_caster.update(m_player, m_entities);
 		
 		m_minimap.update(m_player, m_entities);
+		
+		m_vignette.update(timePassed);
 
 	}
 
@@ -152,12 +164,14 @@ public class Game extends GPanel {
 		g.fillRect(0, (int) (HEIGHT / 2.0), WIDTH, (int) (HEIGHT / 2.0));
 		
 		m_caster.draw(g);
+		m_vignette.draw(g);
 		m_minimap.draw(g);
 		
 		g.setColor(Color.yellow);
 		g.drawString("" + m_pillCount, SCORE_X, SCORE_Y);
 		g.drawString("/", SCORE_X + 40, SCORE_Y);
 		g.drawString("" + m_pillStart, SCORE_X + 50, SCORE_Y);
+		
 	}
 	
 	/*

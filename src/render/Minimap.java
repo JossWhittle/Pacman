@@ -24,7 +24,7 @@ public class Minimap extends Drawable {
 	private int MAP_W, MAP_H;
 	
 	protected Minimap(double x, double y, double w, double h, double ox, double oy, Block[][] map, int[][] sprite_map, int pimg) {
-		super(x, y, w, h, ox, oy, 0, 0.5);
+		super(x, y, w, h, ox, oy, 0, 0.2);
 		m_map = map;
 		m_sprite_map = sprite_map;
 		
@@ -43,7 +43,7 @@ public class Minimap extends Drawable {
 	}
 
 	protected void drawContent(Graphics2D g) {
-		double BLOCK_W = getW() / MAP_W, BLOCK_H = getH() / MAP_H;
+		double BLOCK_W = getW() / MAP_H, BLOCK_H = getH() / MAP_W;
 		
 		for (int y = 0; y < MAP_H; y++) {
 			for (int x = 0; x < MAP_W; x++) {
@@ -65,7 +65,7 @@ public class Minimap extends Drawable {
 			}
 		}
 		
-		double px = ((getX() - getOX()) + ((MAP_H - m_playerY) * BLOCK_W));
+		double px = ((getX() - getOX()) + ((MAP_H - m_playerY + 1) * BLOCK_W));
 		double py = ((getY() - getOY()) + (m_playerX * BLOCK_H));
 		
 		m_playerSprite.setW(BLOCK_W*1.5);
