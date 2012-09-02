@@ -12,8 +12,7 @@ import java.util.ArrayList;
 public class RayCaster extends SimpleDrawable {
 
 	// Constants
-	private static final int STRIP_WIDTH = 1;
-
+	
 	// Members
 	private RenderQueue m_renderQueue;
 	private BufferedImage[][][][] m_texWalls;
@@ -42,7 +41,7 @@ public class RayCaster extends SimpleDrawable {
 		FOV_H = FOV / 2.0;
 		PI2 = Math.PI * 2.0;
 
-		RAYS = (int) Math.ceil(getW() / STRIP_WIDTH);
+		RAYS = (int) Math.ceil(getW() / Settings.STRIP_WIDTH);
 		VIEW_DIST = (getW() / 2.0) / Math.tan(FOV_H);
 		VIEW_DIST2 = VIEW_DIST * VIEW_DIST;
 		
@@ -78,7 +77,7 @@ public class RayCaster extends SimpleDrawable {
 
 		for (int i = 0; i < RAYS; i++) {
 			double rayScreenPos = (double) (((double) (-RAYS) / 2.0) + i)
-					* (double) STRIP_WIDTH;
+					* (double) Settings.STRIP_WIDTH;
 			double rayViewDist = Math.sqrt(rayScreenPos * rayScreenPos
 					+ VIEW_DIST2);
 			double rayAngle = Math.asin(rayScreenPos / rayViewDist);
@@ -299,12 +298,12 @@ public class RayCaster extends SimpleDrawable {
 			Wall wall = block.getFace(angle, horizontal);
 
 			int shade = (horizontal ? 0 : 1);
-			int texel = (int) Math.min(Math.floor(texX * (Settings.TEX_WIDTH * STRIP_WIDTH)), (Settings.TEX_WIDTH * STRIP_WIDTH) - 1);
+			int texel = (int) Math.min(Math.floor(texX * (Settings.TEX_WIDTH / Settings.STRIP_WIDTH)), (Settings.TEX_WIDTH / Settings.STRIP_WIDTH) - 1);
 
 			m_renderQueue.addJob(new DepthImage(
 					m_texWalls[wall.getSet()][wall.getTile()][shade][texel],
-					(double) (strip * STRIP_WIDTH),
-					top, (double) STRIP_WIDTH,
+					(double) (strip * Settings.STRIP_WIDTH),
+					top, (double) Settings.STRIP_WIDTH,
 					stripHeight, dist), dist);
 		}
 	}
