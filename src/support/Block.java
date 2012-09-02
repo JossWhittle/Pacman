@@ -25,15 +25,15 @@ public class Block {
 		m_west = w;
 	}
 	
-	public Wall getFace(double angle, boolean horizontal) {
+	public Wall getFace(float angle, boolean horizontal) {
 		if (horizontal) {
-			double dx = Math.cos(Math.toRadians(angle));	
+			float dx = (float) Math.cos(Math.toRadians(angle));	
 			if (dx < 0) {
 				return m_east;
 			}
 			return m_west;
 		}
-		double dy = Math.sin(Math.toRadians(angle));
+		float dy = (float) Math.sin(Math.toRadians(angle));
 		if (dy < 0) {
 			return m_south;
 		}

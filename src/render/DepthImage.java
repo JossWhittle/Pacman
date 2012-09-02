@@ -8,23 +8,23 @@ public class DepthImage extends DrawableImage {
 
 	// Constants
 	private static final Color BG = new Color(7,7,7);
-	private static final double MAX_DEPTH = 3, FALLOFF_LIMIT = 0.25;
+	private static final float MAX_DEPTH = 3f, FALLOFF_LIMIT = 0.25f;
 	
 	// Members
-	private double m_depth, m_df;
+	private float m_depth, m_df;
 	private boolean m_back;
 	
-	public DepthImage(BufferedImage img, double x, double y, double w, double h, double depth) {
+	public DepthImage(BufferedImage img, float x, float y, float w, float h, float depth) {
 		this(img,x,y,w,h,depth,true);
 	}
 	
-	public DepthImage(BufferedImage img, double x, double y, double w, double h, double depth, boolean back) {
+	public DepthImage(BufferedImage img, float x, float y, float w, float h, float depth, boolean back) {
 		super(img, x, y, w, h);
 		m_depth = depth;
 		m_back = back;
 		
-		double t = (m_depth - FALLOFF_LIMIT) / MAX_DEPTH;
-		m_df = Math.max(Math.min(((-1)*t*t) + (1), 1),0.02);
+		float t = (m_depth - FALLOFF_LIMIT) / MAX_DEPTH;
+		m_df = (float)Math.max(Math.min(((-1f)*t*t) + (1f), 1f),0.02f);
 	}
 	
 	protected void drawContent(Graphics2D g) {

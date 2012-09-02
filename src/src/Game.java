@@ -96,7 +96,7 @@ public class Game extends GPanel {
 
 		m_map = new Map();
 
-		m_player = new Player(m_map.getStartX()+0.5, m_map.getStartY()+0.5, 180, m_map.m_map);
+		m_player = new Player(m_map.getStartX()+0.5f, m_map.getStartY()+0.5f, 180f, m_map.m_map);
 		
 		m_caster = new RayCaster(texture_walls, texture_pills, m_map.m_map, m_map.m_sprite_map);
 		
@@ -114,7 +114,7 @@ public class Game extends GPanel {
 		m_vignette = new Fader(vignette, 0,0,WIDTH,HEIGHT);
 	}
 
-	protected void update(long timePassed) {
+	protected void update(int timePassed) {
 		// Update code HERE
 
 		if (m_uber > 0) {
@@ -122,11 +122,11 @@ public class Game extends GPanel {
 			if (m_uber <= 0) {
 				m_uber = 0;
 				sndSiren.stop();
-				m_vignette.setFadeTarget(new double[][]{{1,2000}});
+				m_vignette.setFadeTarget(new float[][]{{1f,2000f}});
 			}
 		}
 
-		double turn = 0.0;
+		float turn = 0.0f;
 		if (LEFT) {
 			turn += Player.LEFT;
 		}
@@ -135,7 +135,7 @@ public class Game extends GPanel {
 		}
 		m_player.setTurn(turn);
 
-		double speed = 0.0;
+		float speed = 0.0f;
 		if (FORWARD) {
 			speed += Player.FORWARD;
 		}
@@ -154,12 +154,12 @@ public class Game extends GPanel {
 			
 			if (m_uber == 0) {
 				//sndWaka.play();
-				m_vignette.setFadeTarget(new double[][]{{0.8,50},{1,100}});
+				m_vignette.setFadeTarget(new float[][]{{0.8f,50f},{1f,100f}});
 			}
 		} else if (m_map.m_sprite_map[px][py] == Map.SPRITE_MEGA) {
 			m_map.m_sprite_map[px][py] = 0;
 			
-			m_vignette.setFadeTarget(new double[][]{{0.75,50}});
+			m_vignette.setFadeTarget(new float[][]{{0.75f,50f}});
 			//sndSiren.loop();
 			m_uber += UBER;
 		}

@@ -13,7 +13,7 @@ public abstract class SimpleDrawable {
 	protected static final AffineTransform NULL_TRANSFORM = new AffineTransform();
 	
 	// Members
-	protected double m_x, m_y, m_w, m_h, m_ox, m_oy;
+	protected float m_x, m_y, m_w, m_h, m_ox, m_oy;
 
 	/**
 	 * Abstract constructor
@@ -31,8 +31,8 @@ public abstract class SimpleDrawable {
 	 * @param oy
 	 *            The y origin
 	 */
-	protected SimpleDrawable(double x, double y, double w, double h, double ox,
-			double oy) {
+	protected SimpleDrawable(float x, float y, float w, float h, float ox,
+			float oy) {
 		m_x = x;
 		m_y = y;
 		m_w = w;
@@ -55,7 +55,7 @@ public abstract class SimpleDrawable {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setXY(double x, double y) {
+	public void setXY(float x, float y) {
 		m_x = x;
 		m_y = y;
 	}
@@ -66,7 +66,7 @@ public abstract class SimpleDrawable {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setX(double v) {
+	public void setX(float v) {
 		m_x = v;
 	}
 
@@ -75,7 +75,7 @@ public abstract class SimpleDrawable {
 	 * 
 	 * @return The value
 	 */
-	public double getX() {
+	public float getX() {
 		return m_x;
 	}
 
@@ -85,7 +85,7 @@ public abstract class SimpleDrawable {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setY(double v) {
+	public void setY(float v) {
 		m_y = v;
 	}
 
@@ -94,7 +94,7 @@ public abstract class SimpleDrawable {
 	 * 
 	 * @return The value
 	 */
-	public double getY() {
+	public float getY() {
 		return m_y;
 	}
 
@@ -104,7 +104,7 @@ public abstract class SimpleDrawable {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setW(double v) {
+	public void setW(float v) {
 		m_w = v;
 	}
 
@@ -113,7 +113,7 @@ public abstract class SimpleDrawable {
 	 * 
 	 * @return The value
 	 */
-	public double getW() {
+	public float getW() {
 		return m_w;
 	}
 
@@ -123,7 +123,7 @@ public abstract class SimpleDrawable {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setH(double v) {
+	public void setH(float v) {
 		m_h = v;
 	}
 
@@ -132,7 +132,7 @@ public abstract class SimpleDrawable {
 	 * 
 	 * @return The value
 	 */
-	public double getH() {
+	public float getH() {
 		return m_h;
 	}
 
@@ -142,7 +142,7 @@ public abstract class SimpleDrawable {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setOX(double v) {
+	public void setOX(float v) {
 		m_ox = v;
 	}
 
@@ -151,7 +151,7 @@ public abstract class SimpleDrawable {
 	 * 
 	 * @return The value
 	 */
-	public double getOX() {
+	public float getOX() {
 		return m_ox;
 	}
 
@@ -161,7 +161,7 @@ public abstract class SimpleDrawable {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setOY(double v) {
+	public void setOY(float v) {
 		m_oy = v;
 	}
 
@@ -170,7 +170,7 @@ public abstract class SimpleDrawable {
 	 * 
 	 * @return The value
 	 */
-	public double getOY() {
+	public float getOY() {
 		return m_oy;
 	}
 

@@ -7,14 +7,14 @@
 public class Player {
 
 	// Constants
-	private static final double MOVE_SPEED = 0.08, ROT_SPEED = 4.0,
-			RADIUS = 0.35, ROT_ACC = 0.8;
-	public static final double LEFT = -1.0, RIGHT = 1.0, FORWARD = 1.0,
-			BACK = -1.0, STRIDE_LENGTH = 4, STRIDE_HEIGHT = 10, STRIDE_OFFSET = 0;
+	private static final float MOVE_SPEED = 0.08f, ROT_SPEED = 4.0f,
+			RADIUS = 0.35f, ROT_ACC = 0.8f;
+	public static final float LEFT = -1.0f, RIGHT = 1.0f, FORWARD = 1.0f,
+			BACK = -1.0f, STRIDE_LENGTH = 4f, STRIDE_HEIGHT = 10f, STRIDE_OFFSET = 0f;
 
 	// Members
-	private double m_x, m_y, m_rot, m_turn = 0, m_speed = 0, m_rotspeed = 0,
-			m_oldturn = 0, m_stride, m_strideX = 0;
+	private float m_x, m_y, m_rot, m_turn = 0f, m_speed = 0f, m_rotspeed = 0f,
+			m_oldturn = 0f, m_stride, m_strideX = 0f;
 	
 	private Block[][] m_map;
 
@@ -28,7 +28,7 @@ public class Player {
 	 * @param r
 	 *            The rotation angle in degrees
 	 */
-	public Player(double x, double y, double r, Block[][] map) {
+	public Player(float x, float y, float r, Block[][] map) {
 		m_x = x;
 		m_y = y;
 		m_rot = r;
@@ -43,12 +43,12 @@ public class Player {
 	 *            The amount of time since the last call
 	 */
 	public void update(long timePassed) {
-		double ticks = (double) timePassed / Game.FPS;
+		float ticks = (float) timePassed / Game.FPS;
 
 		// Movement acceleration
-		double moveStep = (m_speed * MOVE_SPEED) * ticks;
+		float moveStep = (m_speed * MOVE_SPEED) * ticks;
 		m_strideX += moveStep;
-		m_stride = STRIDE_HEIGHT * Math.sin(STRIDE_LENGTH * m_strideX) - STRIDE_OFFSET;
+		m_stride = (float) (STRIDE_HEIGHT * Math.sin(STRIDE_LENGTH * m_strideX) - STRIDE_OFFSET);
 		
 		//System.out.println(m_stride);
 
@@ -73,8 +73,8 @@ public class Player {
 			m_rot -= 360;
 		}
 
-		double x = m_x + Math.cos(Math.toRadians(m_rot)) * moveStep;
-		double y = m_y + Math.sin(Math.toRadians(m_rot)) * moveStep;
+		float x = (float) (m_x + Math.cos(Math.toRadians(m_rot)) * moveStep);
+		float y = (float) (m_y + Math.sin(Math.toRadians(m_rot)) * moveStep);
 
 		int width = m_map.length, height = m_map[0].length;
 		if (!(x < 0 || x >= width || y < 0 || y >= height)) {
@@ -159,7 +159,7 @@ public class Player {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setTurn(double v) {
+	public void setTurn(float v) {
 		m_turn = v;
 	}
 
@@ -168,7 +168,7 @@ public class Player {
 	 * 
 	 * @return The value
 	 */
-	public double getTurn() {
+	public float getTurn() {
 		return m_turn;
 	}
 
@@ -178,7 +178,7 @@ public class Player {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setSpeed(double v) {
+	public void setSpeed(float v) {
 		m_speed = v;
 	}
 
@@ -187,7 +187,7 @@ public class Player {
 	 * 
 	 * @return The value
 	 */
-	public double getSpeed() {
+	public float getSpeed() {
 		return m_speed;
 	}
 
@@ -197,7 +197,7 @@ public class Player {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setX(double v) {
+	public void setX(float v) {
 		m_x = v;
 	}
 
@@ -206,7 +206,7 @@ public class Player {
 	 * 
 	 * @return The value
 	 */
-	public double getX() {
+	public float getX() {
 		return m_x;
 	}
 
@@ -216,7 +216,7 @@ public class Player {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setY(double v) {
+	public void setY(float v) {
 		m_y = v;
 	}
 
@@ -225,7 +225,7 @@ public class Player {
 	 * 
 	 * @return The value
 	 */
-	public double getY() {
+	public float getY() {
 		return m_y;
 	}
 
@@ -235,7 +235,7 @@ public class Player {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setRot(double v) {
+	public void setRot(float v) {
 		m_rot = v;
 	}
 
@@ -244,11 +244,11 @@ public class Player {
 	 * 
 	 * @return The value
 	 */
-	public double getRot() {
+	public float getRot() {
 		return m_rot;
 	}
 
-	public double getStride() {
+	public float getStride() {
 		return m_stride;
 	}
 }

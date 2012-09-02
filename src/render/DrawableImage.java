@@ -47,8 +47,8 @@ public class DrawableImage extends Drawable {
 	 * @param alpha
 	 *            The alpha value
 	 */
-	public DrawableImage(BufferedImage img, double x, double y, double w,
-			double h, double ox, double oy, double rot, double alpha) {
+	public DrawableImage(BufferedImage img, float x, float y, float w,
+			float h, float ox, float oy, float rot, float alpha) {
 		super(x, y, w, h, ox, oy, rot, alpha);
 		m_img = img;
 	}
@@ -71,8 +71,8 @@ public class DrawableImage extends Drawable {
 	 * @param oy
 	 *            The y origin
 	 */
-	public DrawableImage(BufferedImage img, double x, double y, double w,
-			double h, double ox, double oy) {
+	public DrawableImage(BufferedImage img, float x, float y, float w,
+			float h, float ox, float oy) {
 		this(img, x, y, w, h, ox, oy, DEFAULT_ROTATION, DEFAULT_ALPHA);
 	}
 	
@@ -94,8 +94,8 @@ public class DrawableImage extends Drawable {
 	 * @param oy
 	 *            The y origin
 	 */
-	public DrawableImage(BufferedImage img, double x, double y, double w,
-			double h) {
+	public DrawableImage(BufferedImage img, float x, float y, float w,
+			float h) {
 		this(img, x, y, w, h, DEFAULT_ORIGIN, DEFAULT_ORIGIN);
 	}
 
@@ -121,8 +121,8 @@ public class DrawableImage extends Drawable {
 	 * @param alpha
 	 *            The alpha value
 	 */
-	public DrawableImage(int img, double x, double y, double w, double h,
-			double ox, double oy, double rot, double alpha) {
+	public DrawableImage(int img, float x, float y, float w, float h,
+			float ox, float oy, float rot, float alpha) {
 		this(Loader.getImage(img), x, y, w, h, ox, oy, rot, alpha);
 	}
 	
@@ -144,8 +144,8 @@ public class DrawableImage extends Drawable {
 	 * @param oy
 	 *            The y origin
 	 */
-	public DrawableImage(int img, double x, double y, double w, double h,
-			double ox, double oy) {
+	public DrawableImage(int img, float x, float y, float w, float h,
+			float ox, float oy) {
 		this(Loader.getImage(img), x, y, w, h, ox, oy);
 	}
 	
@@ -163,7 +163,7 @@ public class DrawableImage extends Drawable {
 	 * @param h
 	 *            The height
 	 */
-	public DrawableImage(int img, double x, double y, double w, double h) {
+	public DrawableImage(int img, float x, float y, float w, float h) {
 		this(Loader.getImage(img), x, y, w, h);
 	}
 

@@ -20,8 +20,8 @@ public class GUI_Main {
 	private JFrame m_frame;
 	private GPanel m_canvas;
 	private static boolean m_running = false;
-	private long m_startTime, m_accTime, m_currentTime, m_timePassed;
-	int m_wait;
+	private long m_startTime, m_accTime, m_currentTime;
+	int m_wait, m_timePassed;
 
 	/**
 	 * Launch the application.
@@ -85,7 +85,7 @@ public class GUI_Main {
 
 		while (m_running) {
 			m_currentTime = System.currentTimeMillis();
-			m_timePassed = m_currentTime - m_accTime;
+			m_timePassed = (int) (m_currentTime - m_accTime);
 
 			m_accTime += m_timePassed;
 
