@@ -5,13 +5,13 @@ import java.awt.geom.AffineTransform;
 public abstract class Drawable extends SimpleDrawable {
 
 	// Constants
-	protected static final double DEFAULT_ALPHA = 1.0, DEFAULT_ROTATION = 0.0,
-			DEFAULT_ORIGIN = 0.0;
+	protected static final float DEFAULT_ALPHA = 1.0f, DEFAULT_ROTATION = 0.0f,
+			DEFAULT_ORIGIN = 0.0f;
 	protected static final AlphaComposite NULL_ALPHA = AlphaComposite
 			.getInstance(AlphaComposite.SRC_OVER, 1.0f);
 
 	// Members
-	protected double m_rot, m_alpha;
+	protected float m_rot, m_alpha;
 
 	/**
 	 * Abstract constructor
@@ -33,8 +33,8 @@ public abstract class Drawable extends SimpleDrawable {
 	 * @param alpha
 	 *            The alpha value
 	 */
-	protected Drawable(double x, double y, double w, double h, double ox,
-			double oy, double rot, double alpha) {
+	protected Drawable(float x, float y, float w, float h, float ox,
+			float oy, float rot, float alpha) {
 		super(x, y, w, h, ox, oy);
 		m_rot = rot;
 		m_alpha = alpha;
@@ -78,12 +78,12 @@ public abstract class Drawable extends SimpleDrawable {
 	 * @param v
 	 *            The amount to change by
 	 */
-	public void fade(double v) {
+	public void fade(float v) {
 		m_alpha += v;
-		if (m_alpha > 1.0) {
-			m_alpha = 1.0;
-		} else if (m_alpha < 0.0) {
-			m_alpha = 0.0;
+		if (m_alpha > 1.0f) {
+			m_alpha = 1.0f;
+		} else if (m_alpha < 0.0f) {
+			m_alpha = 0.0f;
 		}
 	}
 
@@ -93,10 +93,10 @@ public abstract class Drawable extends SimpleDrawable {
 	 * @param r
 	 *            The angle to rotate by
 	 */
-	public void rotCW(double r) {
+	public void rotCW(float r) {
 		m_rot += r;
-		if (m_rot > 360.0)
-			m_rot -= 360.0;
+		if (m_rot > 360.0f)
+			m_rot -= 360.0f;
 	}
 
 	/**
@@ -105,10 +105,10 @@ public abstract class Drawable extends SimpleDrawable {
 	 * @param r
 	 *            The angle to rotate by
 	 */
-	public void rotCCW(double r) {
+	public void rotCCW(float r) {
 		m_rot -= r;
-		if (m_rot < 0.0)
-			m_rot += 360.0;
+		if (m_rot < 0.0f)
+			m_rot += 360.0f;
 	}
 
 	/**
@@ -117,7 +117,7 @@ public abstract class Drawable extends SimpleDrawable {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setRot(double v) {
+	public void setRot(float v) {
 		m_rot = v;
 	}
 
@@ -126,7 +126,7 @@ public abstract class Drawable extends SimpleDrawable {
 	 * 
 	 * @return The value
 	 */
-	public double getRot() {
+	public float getRot() {
 		return m_rot;
 	}
 
@@ -136,7 +136,7 @@ public abstract class Drawable extends SimpleDrawable {
 	 * @param v
 	 *            The desired value
 	 */
-	public void setAlpha(double v) {
+	public void setAlpha(float v) {
 		m_alpha = v;
 	}
 
@@ -145,7 +145,7 @@ public abstract class Drawable extends SimpleDrawable {
 	 * 
 	 * @return The value
 	 */
-	public double getAlpha() {
+	public float getAlpha() {
 		return m_alpha;
 	}
 

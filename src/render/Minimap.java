@@ -14,7 +14,7 @@ public class Minimap extends Drawable {
 	// Constants
 	
 	// Members
-	private double m_playerX, m_playerY, m_playerR;
+	private float m_playerX, m_playerY, m_playerR;
 	private int[][] m_sprite_map;
 	private Block[][] m_map;
 	ArrayList<Entity> m_entities;
@@ -23,8 +23,8 @@ public class Minimap extends Drawable {
 	
 	private int MAP_W, MAP_H;
 	
-	protected Minimap(double x, double y, double w, double h, double ox, double oy, Block[][] map, int[][] sprite_map, int pimg) {
-		super(x, y, w, h, ox, oy, 0, 0.2);
+	protected Minimap(float x, float y, float w, float h, float ox, float oy, Block[][] map, int[][] sprite_map, int pimg) {
+		super(x, y, w, h, ox, oy, 0, 0.2f);
 		m_map = map;
 		m_sprite_map = sprite_map;
 		
@@ -43,7 +43,7 @@ public class Minimap extends Drawable {
 	}
 
 	protected void drawContent(Graphics2D g) {
-		double BLOCK_W = getW() / MAP_H, BLOCK_H = getH() / MAP_W;
+		float BLOCK_W = getW() / MAP_H, BLOCK_H = getH() / MAP_W;
 		
 		for (int y = 0; y < MAP_H; y++) {
 			for (int x = 0; x < MAP_W; x++) {
@@ -65,16 +65,16 @@ public class Minimap extends Drawable {
 			}
 		}
 		
-		double px = ((getX() - getOX()) + ((MAP_H - m_playerY + 1) * BLOCK_W));
-		double py = ((getY() - getOY()) + (m_playerX * BLOCK_H));
+		float px = ((getX() - getOX()) + ((MAP_H - m_playerY + 1) * BLOCK_W));
+		float py = ((getY() - getOY()) + (m_playerX * BLOCK_H));
 		
-		m_playerSprite.setW(BLOCK_W*1.5);
-		m_playerSprite.setH(BLOCK_H*1.5);
-		m_playerSprite.setOX((BLOCK_W*1.5)/2);
-		m_playerSprite.setOY((BLOCK_H*1.5)/2);
+		m_playerSprite.setW(BLOCK_W*1.5f);
+		m_playerSprite.setH(BLOCK_H*1.5f);
+		m_playerSprite.setOX((BLOCK_W*1.5f)/2f);
+		m_playerSprite.setOY((BLOCK_H*1.5f)/2f);
 		
 		m_playerSprite.setXY(px,py);
-		m_playerSprite.setRot(m_playerR+90);
+		m_playerSprite.setRot(m_playerR+90f);
 		m_playerSprite.draw(g);
 	}
 

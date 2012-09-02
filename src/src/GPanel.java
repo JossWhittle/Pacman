@@ -20,7 +20,7 @@ public abstract class GPanel extends JPanel implements MouseListener,
 		MouseMotionListener, KeyListener {
 
 	// Constants
-	public static final double SECOND = 1000, FPS = 30;
+	public static final float SECOND = 1000, FPS = 30;
 
 	private static final int FPS_X = 10, FPS_Y = 30;
 	private static final Color BG = Color.gray, FG = Color.black;
@@ -66,7 +66,7 @@ public abstract class GPanel extends JPanel implements MouseListener,
 	 * @param timePassed
 	 *            The amount of time since the last call
 	 */
-	public void tick(long timePassed) {
+	public void tick(int timePassed) {
 		if (m_doneDrawing) {
 			m_doneDrawing = false;
 			
@@ -101,7 +101,7 @@ public abstract class GPanel extends JPanel implements MouseListener,
 	 * @param timePassed
 	 *            The amount of time since the last call
 	 */
-	protected abstract void update(long timePassed);
+	protected abstract void update(int timePassed);
 
 	/**
 	 * Overrides the default JPanel draw method

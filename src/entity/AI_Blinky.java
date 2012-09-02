@@ -23,7 +23,7 @@ public class AI_Blinky extends Entity {
 		scatterMode();
 	}
 	
-	protected void tick(long timePassed, double ticks, Player p) {
+	protected void tick(int timePassed, float ticks, Player p) {
 		if (m_mode == MODE_SCATTER) {
 			targetHome();
 		} else {

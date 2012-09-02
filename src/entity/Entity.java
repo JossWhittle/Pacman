@@ -3,9 +3,9 @@ import java.awt.image.BufferedImage;
 public abstract class Entity {
 
 	// Constants
-	private static final double MOVE_SPEED = 0.08, WALK_CYCLE = 200;
-	public static final double LEFT = -1.0, RIGHT = 1.0, FORWARD = 1.0,
-			BACK = -1.0;
+	private static final float MOVE_SPEED = 0.08f, WALK_CYCLE = 200f;
+	public static final float LEFT = -1.0f, RIGHT = 1.0f, FORWARD = 1.0f,
+			BACK = -1.0f;
 
 	public static final int IMG_MOVE_DOWN = 0, IMG_MOVE_LEFT = 2, IMG_MOVE_RIGHT = 1, IMG_MOVE_UP = 3;
 
@@ -16,8 +16,8 @@ public abstract class Entity {
 			DIR_D = 2;
 
 	// Members
-	protected double m_x, m_y, m_rot;
-	protected double m_homeX, m_homeY, m_targetX, m_targetY, m_spawnX,
+	protected float m_x, m_y, m_rot;
+	protected float m_homeX, m_homeY, m_targetX, m_targetY, m_spawnX,
 			m_spawnY, m_goalX, m_goalY;
 	protected int m_direction;
 	
@@ -26,7 +26,7 @@ public abstract class Entity {
 	private BufferedImage[][] m_img;
 	private int m_walkIndex = 0, m_directionIndex = IMG_MOVE_DOWN;
 	protected int m_mode = MODE_CHASE;
-	private double m_walkCount = 0.0;
+	private float m_walkCount = 0.0f;
 
 	public boolean m_visible = false;
 
@@ -41,8 +41,8 @@ public abstract class Entity {
 	protected void init(BufferedImage[][] img, int spawnX,
 			int spawnY, int[][] map) {
 		m_map = map;
-		m_spawnX = spawnX + 0.5;
-		m_spawnY = spawnY + 0.5;
+		m_spawnX = spawnX + 0.5f;
+		m_spawnY = spawnY + 0.5f;
 
 		m_x = m_spawnX;
 		m_y = m_spawnY;
@@ -61,8 +61,8 @@ public abstract class Entity {
 	 * @param timePassed
 	 *            The amount of time since the last call
 	 */
-	public void update(long timePassed, Player p) {
-		double ticks = (double) timePassed / Game.FPS;
+	public void update(int timePassed, Player p) {
+		float ticks = (float) timePassed / Game.FPS;
 
 		m_visible = false;
 
@@ -73,7 +73,7 @@ public abstract class Entity {
 		}
 		
 		boolean pathfind = false;
-		double moveStep = (MOVE_SPEED) * ticks;
+		float moveStep = (MOVE_SPEED) * ticks;
 		if (m_direction == DIR_R) {
 			if (m_y < m_goalY) {
 				m_y = m_goalY;
@@ -108,10 +108,10 @@ public abstract class Entity {
 			int blockX = (int)Math.floor(m_x), blockY = (int)Math.floor(m_y);
 			
 			int olddir = m_direction;
-			double mindist = -1;
+			float mindist = -1;
 			
 			if (olddir != DIR_L && canMove(blockX, blockY-1,m_map) && m_map[blockX][blockY] != Map.PATH_SPECIAL) {
-				double dist = distanceToTarget(blockX, blockY-1);
+				float dist = distanceToTarget(blockX, blockY-1);
 				if (mindist == -1 || dist < mindist) {
 					mindist = dist;
 					m_direction = DIR_R;
@@ -120,7 +120,7 @@ public abstract class Entity {
 			}
 			
 			if (olddir != DIR_D && canMove(blockX-1, blockY,m_map)) {
-				double dist = distanceToTarget(blockX-1, blockY);
+				float dist = distanceToTarget(blockX-1, blockY);
 				if (mindist == -1 || dist < mindist) {
 					mindist = dist;
 					m_direction = DIR_U;
@@ -129,7 +129,7 @@ public abstract class Entity {
 			}
 			
 			if (olddir != DIR_R && canMove(blockX, blockY+1,m_map)) {
-				double dist = distanceToTarget(blockX, blockY+1);
+				float dist = distanceToTarget(blockX, blockY+1);
 				if (mindist == -1 || dist < mindist) {
 					mindist = dist;
 					m_direction = DIR_L;
@@ -138,7 +138,7 @@ public abstract class Entity {
 			}
 			
 			if (olddir != DIR_U && canMove(blockX+1, blockY,m_map)) {
-				double dist = distanceToTarget(blockX+1, blockY);
+				float dist = distanceToTarget(blockX+1, blockY);
 				if (mindist == -1 || dist < mindist) {
 					mindist = dist;
 					m_direction = DIR_D;
@@ -214,7 +214,7 @@ public abstract class Entity {
 	 *            The fractional number of frames that should have occurred
 	 * @param p The player to chase
 	 */
-	protected abstract void tick(long timePassed, double ticks, Player p);
+	protected abstract void tick(int timePassed, float ticks, Player p);
 
 	/**
 	 * Determines if the ai can move to the desired coord
@@ -238,10 +238,10 @@ public abstract class Entity {
 	 *            The y coord
 	 * @return The distance
 	 */
-	protected double distanceToTarget(double x, double y) {
-		double distX = m_targetX + 0.5 - x;
-		double distY = m_targetY + 0.5 - y;
-		return Math.sqrt((distX * distX) + (distY * distY));
+	protected float distanceToTarget(float x, float y) {
+		float distX = m_targetX + 0.5f - x;
+		float distY = m_targetY + 0.5f - y;
+		return (float) Math.sqrt((distX * distX) + (distY * distY));
 	}
 
 	/**
