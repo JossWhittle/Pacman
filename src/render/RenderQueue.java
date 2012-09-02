@@ -35,7 +35,7 @@ public class RenderQueue {
 	 * @param stride
 	 *            This is a really hacky way of adding stride bounce. Sorry
 	 */
-	public void draw(Graphics2D g, double stride) {
+	public void draw(Graphics2D g, float stride) {
 		for (int i = 0; i < m_queue.size(); i++) {
 			SimpleDrawable j = m_queue.get(i).getJob();
 			j.setOY(stride);
@@ -51,7 +51,7 @@ public class RenderQueue {
 	 * @param dist
 	 *            It's distance from the camera
 	 */
-	public void addJob(SimpleDrawable job, double dist) {
+	public void addJob(SimpleDrawable job, float dist) {
 		RenderJob rj = new RenderJob(job, dist);
 
 		if (m_queue.size() == 0) {
@@ -109,7 +109,7 @@ public class RenderQueue {
 
 		// Members
 		private SimpleDrawable m_job;
-		private double m_dist;
+		private float m_dist;
 
 		/**
 		 * Constructor
@@ -119,7 +119,7 @@ public class RenderQueue {
 		 * @param dist
 		 *            The distance from the camera (z-depth)
 		 */
-		public RenderJob(SimpleDrawable job, double dist) {
+		public RenderJob(SimpleDrawable job, float dist) {
 			m_job = job;
 			m_dist = dist;
 		}
@@ -139,7 +139,7 @@ public class RenderQueue {
 		 * 
 		 * @return The distance
 		 */
-		public double getDistance() {
+		public float getDistance() {
 			return m_dist;
 		}
 		
