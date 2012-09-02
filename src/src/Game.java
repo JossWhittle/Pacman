@@ -53,10 +53,10 @@ public class Game extends GPanel {
 			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_4.gif")
 		},
 		{
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_1.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_2.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_3.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_3.gif")
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_rust_1.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_rust_2.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_rust_4.gif"),
+			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_rust_3.gif")
 		}};
 		
 		int[] texXeno = {

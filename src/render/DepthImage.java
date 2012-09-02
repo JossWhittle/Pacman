@@ -24,7 +24,7 @@ public class DepthImage extends DrawableImage {
 		m_back = back;
 		
 		double t = (m_depth - FALLOFF_LIMIT) / MAX_DEPTH;
-		m_df = Math.max(Math.min(((-1)*t*t) + (1), 1),0);
+		m_df = Math.max(Math.min(((-1)*t*t) + (1), 1),0.02);
 	}
 	
 	protected void drawContent(Graphics2D g) {

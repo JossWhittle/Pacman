@@ -16,7 +16,7 @@ public class Wall {
 	
 	public Wall(int val, int i) {
 		m_set = val;
-		m_tile = (int)(i == TEX_RND ? Math.floor(Math.random() * 3.9999999) : i);
+		m_tile = Math.min((int)(i == TEX_RND ? Math.floor(Math.random() * 9) : i),3);
 	}
 	
 	public int getSet() {
