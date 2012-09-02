@@ -3,29 +3,28 @@ import java.awt.image.BufferedImage;
 public abstract class Entity {
 
 	// Constants
-	private static final double MOVE_SPEED = 0.08, WALK_CYCLE = 500;
+	private static final double MOVE_SPEED = 0.08, WALK_CYCLE = 200;
 	public static final double LEFT = -1.0, RIGHT = 1.0, FORWARD = 1.0,
 			BACK = -1.0;
 
-	public static final int IMG_MOVE_UP = 0, IMG_MOVE_DOWN = 1,
-			IMG_MOVE_LEFT = 2, IMG_MOVE_RIGHT = 3, IMG_PANIC = 4, IMG_DIE = 5,
-			IMG_EYE_TOP = 6, IMG_EYE_BOTTOM = 7, IMG_EYE_LEFT = 8,
-			IMG_EYE_RIGHT = 9;
+	public static final int IMG_MOVE_DOWN = 0, IMG_MOVE_LEFT = 2, IMG_MOVE_RIGHT = 1, IMG_MOVE_UP = 3;
 
 	public static final int MODE_CHASE = 0, MODE_SCATTER = 1,
 			MODE_FRIGHTENED = 3, MODE_DYING = 4, MODE_DEAD = 5;
 
-	protected static final int DIR_UP = 0, DIR_LEFT = 1, DIR_DOWN = 2,
-			DIR_RIGHT = 3;
+	protected static final int DIR_R = 1, DIR_U = 0, DIR_L = 3,
+			DIR_D = 2;
 
 	// Members
 	protected double m_x, m_y, m_rot;
 	protected double m_homeX, m_homeY, m_targetX, m_targetY, m_spawnX,
 			m_spawnY, m_goalX, m_goalY;
 	protected int m_direction;
+	
+	protected int[][] m_map;
 
 	private BufferedImage[][] m_img;
-	private int m_walkIndex = 0, m_directionIndex = IMG_MOVE_LEFT;
+	private int m_walkIndex = 0, m_directionIndex = IMG_MOVE_DOWN;
 	protected int m_mode = MODE_CHASE;
 	private double m_walkCount = 0.0;
 
@@ -39,40 +38,20 @@ public abstract class Entity {
 	 * @param eimg
 	 *            Array of action images
 	 */
-	protected void init(BufferedImage[] img, BufferedImage[] eimg, int spawnX,
-			int spawnY) {
+	protected void init(BufferedImage[][] img, int spawnX,
+			int spawnY, int[][] map) {
+		m_map = map;
 		m_spawnX = spawnX + 0.5;
 		m_spawnY = spawnY + 0.5;
 
 		m_x = m_spawnX;
 		m_y = m_spawnY;
 
-		m_direction = DIR_LEFT;
+		m_direction = DIR_U;
 		m_goalX = m_x - 1;
 		m_goalY = m_y;
 
-		m_img = new BufferedImage[10][];
-
-		int j = 0;
-		for (int i = 0; i < img.length; i += 2) {
-			m_img[j] = new BufferedImage[2];
-			m_img[j][0] = img[i];
-			m_img[j][1] = img[i + 1];
-			j++;
-		}
-
-		for (int i = 0; i < 4; i += 2) {
-			m_img[j] = new BufferedImage[2];
-			m_img[j][0] = eimg[i];
-			m_img[j][1] = eimg[i + 1];
-			j++;
-		}
-
-		for (int i = 4; i < eimg.length; i++) {
-			m_img[j] = new BufferedImage[1];
-			m_img[j][0] = eimg[i];
-			j++;
-		}
+		m_img = img;
 
 	}
 
@@ -82,7 +61,7 @@ public abstract class Entity {
 	 * @param timePassed
 	 *            The amount of time since the last call
 	 */
-	public void update(long timePassed, int[][] map, Player p) {
+	public void update(long timePassed, Player p) {
 		double ticks = (double) timePassed / Game.FPS;
 
 		m_visible = false;
@@ -95,28 +74,28 @@ public abstract class Entity {
 		
 		boolean pathfind = false;
 		double moveStep = (MOVE_SPEED) * ticks;
-		if (m_direction == DIR_UP) {
+		if (m_direction == DIR_R) {
 			if (m_y < m_goalY) {
 				m_y = m_goalY;
 				pathfind = true;
 			} else {
 				m_y -= moveStep;
 			}
-		} else if (m_direction == DIR_LEFT) {
+		} else if (m_direction == DIR_U) {
 			if (m_x < m_goalX) {
 				m_x = m_goalX;
 				pathfind = true;
 			} else {
 				m_x -= moveStep;
 			}
-		} else if (m_direction == DIR_DOWN) {
+		} else if (m_direction == DIR_L) {
 			if (m_y > m_goalY) {
 				m_y = m_goalY;
 				pathfind = true;
 			} else {
 				m_y += moveStep;
 			}
-		} else if (m_direction == DIR_RIGHT) {
+		} else if (m_direction == DIR_D) {
 			if (m_x > m_goalX) {
 				m_x = m_goalX;
 				pathfind = true;
@@ -131,43 +110,97 @@ public abstract class Entity {
 			int olddir = m_direction;
 			double mindist = -1;
 			
-			if (olddir != DIR_DOWN && canMove(blockX, blockY-1,map) && map[blockX][blockY] != Map.PATH_SPECIAL) {
+			if (olddir != DIR_L && canMove(blockX, blockY-1,m_map) && m_map[blockX][blockY] != Map.PATH_SPECIAL) {
 				double dist = distanceToTarget(blockX, blockY-1);
 				if (mindist == -1 || dist < mindist) {
 					mindist = dist;
-					m_direction = DIR_UP;
+					m_direction = DIR_R;
 					m_goalY -= 1;
 				}
 			}
 			
-			if (olddir != DIR_RIGHT && canMove(blockX-1, blockY,map)) {
+			if (olddir != DIR_D && canMove(blockX-1, blockY,m_map)) {
 				double dist = distanceToTarget(blockX-1, blockY);
 				if (mindist == -1 || dist < mindist) {
 					mindist = dist;
-					m_direction = DIR_LEFT;
+					m_direction = DIR_U;
 					m_goalX -= 1;
 				}
 			}
 			
-			if (olddir != DIR_UP && canMove(blockX, blockY+1,map)) {
+			if (olddir != DIR_R && canMove(blockX, blockY+1,m_map)) {
 				double dist = distanceToTarget(blockX, blockY+1);
 				if (mindist == -1 || dist < mindist) {
 					mindist = dist;
-					m_direction = DIR_DOWN;
+					m_direction = DIR_L;
 					m_goalY += 1;
 				}
 			}
 			
-			if (olddir != DIR_LEFT && canMove(blockX+1, blockY,map)) {
+			if (olddir != DIR_U && canMove(blockX+1, blockY,m_map)) {
 				double dist = distanceToTarget(blockX+1, blockY);
 				if (mindist == -1 || dist < mindist) {
 					mindist = dist;
-					m_direction = DIR_RIGHT;
+					m_direction = DIR_D;
 					m_goalX += 1;
 				}
 			}	
 			
 		}
+		
+		if (p.getRot() > 135 && p.getRot() <= 225) {
+			// Looking up
+			//System.out.println("UP " + m_direction);
+			
+			if (m_direction == DIR_L) {
+				m_directionIndex = IMG_MOVE_LEFT;
+			} else if (m_direction == DIR_U) {
+				m_directionIndex = IMG_MOVE_UP;
+			} else if (m_direction == DIR_D) {
+				m_directionIndex = IMG_MOVE_DOWN;
+			} else if (m_direction == DIR_R) {
+				m_directionIndex = IMG_MOVE_RIGHT;
+			}
+		} else if (p.getRot() > 225 && p.getRot() <= 315) {
+			// Looking right
+			//System.out.println("RIGHT");
+			
+			if (m_direction == DIR_L) {
+				m_directionIndex = IMG_MOVE_DOWN;
+			} else if (m_direction == DIR_D) {
+				m_directionIndex = IMG_MOVE_RIGHT;
+			} else if (m_direction == DIR_U) {
+				m_directionIndex = IMG_MOVE_LEFT;
+			} else if (m_direction == DIR_R) {
+				m_directionIndex = IMG_MOVE_UP;
+			}
+		} else if (p.getRot() > 45 && p.getRot() <= 135) {
+			// Looking down
+			//System.out.println("LEFT");
+			
+			if (m_direction == DIR_L) {
+				m_directionIndex = IMG_MOVE_UP;
+			} else if (m_direction == DIR_U) {
+				m_directionIndex = IMG_MOVE_RIGHT;
+			} else if (m_direction == DIR_D) {
+				m_directionIndex = IMG_MOVE_LEFT;
+			} else if (m_direction == DIR_R) {
+				m_directionIndex = IMG_MOVE_DOWN;
+			}
+		} else if (p.getRot() > 315 || p.getRot() <= 45) {
+			// Looking left
+			//System.out.println("DOWN");
+			
+			if (m_direction == DIR_L) {
+				m_directionIndex = IMG_MOVE_RIGHT;
+			} else if (m_direction == DIR_U) {
+				m_directionIndex = IMG_MOVE_DOWN;
+			} else if (m_direction == DIR_D) {
+				m_directionIndex = IMG_MOVE_UP;
+			} else if (m_direction == DIR_R) {
+				m_directionIndex = IMG_MOVE_LEFT;
+			}
+		} 
 
 		tick(timePassed, ticks, p);
 	}
@@ -220,11 +253,11 @@ public abstract class Entity {
 		if (m_mode == MODE_CHASE || m_mode == MODE_SCATTER) {
 			return m_img[m_directionIndex][m_walkIndex];
 		} else if (m_mode == MODE_FRIGHTENED) {
-			return m_img[IMG_PANIC][m_walkIndex];
+			//return m_img[IMG_PANIC][m_walkIndex];
 		} else if (m_mode == MODE_DYING) {
-			return m_img[IMG_DIE][m_walkIndex];
+			//return m_img[IMG_DIE][m_walkIndex];
 		} else if (m_mode == MODE_DEAD) {
-			return m_img[m_directionIndex + IMG_EYE_TOP][0];
+			//return m_img[m_directionIndex + IMG_EYE_TOP][0];
 		}
 		return null;
 	}

@@ -28,6 +28,22 @@ public class RenderQueue {
 	}
 
 	/**
+	 * Draws out all render jobs in the queue
+	 * 
+	 * @param g
+	 *            The graphics object passed by the engine
+	 * @param stride
+	 *            This is a really hacky way of adding stride bounce. Sorry
+	 */
+	public void draw(Graphics2D g, double stride) {
+		for (int i = 0; i < m_queue.size(); i++) {
+			SimpleDrawable j = m_queue.get(i).getJob();
+			j.setOY(stride);
+			j.draw(g);
+		}
+	}
+
+	/**
 	 * Adds a render job to the queue
 	 * 
 	 * @param job
@@ -119,12 +135,21 @@ public class RenderQueue {
 		}
 
 		/**
-		 * Gets the render jbos distance from the camera
+		 * Gets the render jobs distance from the camera
 		 * 
 		 * @return The distance
 		 */
 		public double getDistance() {
 			return m_dist;
+		}
+		
+		/**
+		 * Gets the render job
+		 * 
+		 * @return The object
+		 */
+		public SimpleDrawable getJob() {
+			return m_job;
 		}
 	}
 

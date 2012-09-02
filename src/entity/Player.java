@@ -10,11 +10,11 @@ public class Player {
 	private static final double MOVE_SPEED = 0.08, ROT_SPEED = 4.0,
 			RADIUS = 0.35, ROT_ACC = 0.8;
 	public static final double LEFT = -1.0, RIGHT = 1.0, FORWARD = 1.0,
-			BACK = -1.0;
+			BACK = -1.0, STRIDE_LENGTH = 4, STRIDE_HEIGHT = 10, STRIDE_OFFSET = 0;
 
 	// Members
 	private double m_x, m_y, m_rot, m_turn = 0, m_speed = 0, m_rotspeed = 0,
-			m_oldturn = 0;
+			m_oldturn = 0, m_stride, m_strideX = 0;
 	
 	private Block[][] m_map;
 
@@ -47,6 +47,10 @@ public class Player {
 
 		// Movement acceleration
 		double moveStep = (m_speed * MOVE_SPEED) * ticks;
+		m_strideX += moveStep;
+		m_stride = STRIDE_HEIGHT * Math.sin(STRIDE_LENGTH * m_strideX) - STRIDE_OFFSET;
+		
+		//System.out.println(m_stride);
 
 		// Rotation acceleration (smoothing)
 		if (m_turn != 0) {
@@ -62,6 +66,12 @@ public class Player {
 		}
 		m_oldturn = m_turn;
 		m_rot += (m_turn * m_rotspeed) * ticks;
+		
+		if (m_rot < 0) {
+			m_rot += 360;
+		} else if (m_rot > 360) {
+			m_rot -= 360;
+		}
 
 		double x = m_x + Math.cos(Math.toRadians(m_rot)) * moveStep;
 		double y = m_y + Math.sin(Math.toRadians(m_rot)) * moveStep;
@@ -236,5 +246,9 @@ public class Player {
 	 */
 	public double getRot() {
 		return m_rot;
+	}
+
+	public double getStride() {
+		return m_stride;
 	}
 }

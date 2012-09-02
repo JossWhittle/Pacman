@@ -37,8 +37,8 @@ public class Map {
 	 */
 	public Map() {
 		// Enemy block at: 13,11
-		m_enemyX = 11;
-		m_enemyY = 13;
+		m_enemyX = 13;
+		m_enemyY = 11;
 		
 		// Start block at: 14,23
 		m_startX = 23;

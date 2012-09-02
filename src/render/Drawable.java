@@ -48,7 +48,7 @@ public abstract class Drawable extends SimpleDrawable {
 	 *            The graphics object to draw on
 	 */
 	public void draw(Graphics2D g) {
-		if (m_rot != 0) {
+		if (m_rot != 0.0) {
 			AffineTransform t = new AffineTransform();
 			t.rotate(Math.toRadians(m_rot), m_x, m_y);
 			g.setTransform(t);

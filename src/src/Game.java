@@ -59,6 +59,13 @@ public class Game extends GPanel {
 			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_3.gif")
 		}};
 		
+		int[] texXeno = {
+			Loader.loadImage("/resource/texture/xeno/xeno_front.gif"),
+			Loader.loadImage("/resource/texture/xeno/xeno_right.gif"),
+			Loader.loadImage("/resource/texture/xeno/xeno_left.gif"),
+			Loader.loadImage("/resource/texture/xeno/xeno_back.gif")
+		};
+		
 		int texGhosts = Loader.loadImage("/resource/texture/ghost.png");
 		int texPacman = Loader.loadImage("/resource/texture/pacman.png");
 		int texPills = Loader.loadImage("/resource/texture/pills_small.png");
@@ -79,6 +86,13 @@ public class Game extends GPanel {
 		BufferedImage[][][][] texture_walls = Content.processWalls(texWalls, Settings.STRIP_WIDTH);
 		BufferedImage[][] texture_ghosts = Content.processGhosts(texGhosts, 8, 5);
 		BufferedImage[] texture_pills = Content.processPills(texPills, 10, 128);
+		
+		BufferedImage[][] texture_xeno = {
+			Loader.splitImage(texXeno[0], 50),
+			Loader.splitImage(texXeno[1], 100),
+			Loader.splitImage(texXeno[2], 100),
+			Loader.splitImage(texXeno[3], 50)
+		};
 
 		m_map = new Map();
 
@@ -89,6 +103,8 @@ public class Game extends GPanel {
 		m_minimap = new Minimap(WIDTH - MINIMAP_SIZE - 30, 10, MINIMAP_SIZE, MINIMAP_SIZE, 0,0, m_map.m_map, m_map.m_sprite_map, texPacman);
 		
 		m_entities = new ArrayList<Entity>();
+		m_entities.add(new AI_Blinky(texture_xeno, m_map.getEnemyX(), m_map.getEnemyY(), m_map.m_path_map));
+		
 		//m_entities.add();
 		
 		SCORE_X = WIDTH - 110;
@@ -137,15 +153,19 @@ public class Game extends GPanel {
 			m_pillCount++;
 			
 			if (m_uber == 0) {
-				sndWaka.play();
+				//sndWaka.play();
 				m_vignette.setFadeTarget(new double[][]{{0.8,50},{1,100}});
 			}
 		} else if (m_map.m_sprite_map[px][py] == Map.SPRITE_MEGA) {
 			m_map.m_sprite_map[px][py] = 0;
 			
 			m_vignette.setFadeTarget(new double[][]{{0.75,50}});
-			sndSiren.loop();
+			//sndSiren.loop();
 			m_uber += UBER;
+		}
+		
+		for (int i = 0; i < m_entities.size(); i++) {
+			m_entities.get(i).update(timePassed, m_player);
 		}
 		
 		m_caster.update(m_player, m_entities);
@@ -153,7 +173,6 @@ public class Game extends GPanel {
 		m_minimap.update(m_player, m_entities);
 		
 		m_vignette.update(timePassed);
-
 	}
 
 	protected void draw(Graphics2D g) {

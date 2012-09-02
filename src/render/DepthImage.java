@@ -8,7 +8,7 @@ public class DepthImage extends DrawableImage {
 
 	// Constants
 	private static final Color BG = new Color(7,7,7);
-	private static final double MAX_DEPTH = 3;
+	private static final double MAX_DEPTH = 3, FALLOFF_LIMIT = 0.25;
 	
 	// Members
 	private double m_depth, m_df;
@@ -23,7 +23,7 @@ public class DepthImage extends DrawableImage {
 		m_depth = depth;
 		m_back = back;
 		
-		double t = m_depth / MAX_DEPTH;
+		double t = (m_depth - FALLOFF_LIMIT) / MAX_DEPTH;
 		m_df = Math.max(Math.min(((-1)*t*t) + (1), 1),0);
 	}
 	

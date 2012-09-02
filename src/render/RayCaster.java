@@ -22,7 +22,7 @@ public class RayCaster extends SimpleDrawable {
 	private int RAYS, MAP_W, MAP_H;
 	private double VIEW_DIST, VIEW_DIST2, FOV, FOV_H, PI2;
 
-	private double m_playerX, m_playerY, m_playerRot;
+	private double m_playerX, m_playerY, m_playerRot, m_playerStride;
 	private int m_frame;
 	
 	private int[][] m_visSprite, m_sprite_map;
@@ -74,6 +74,7 @@ public class RayCaster extends SimpleDrawable {
 		m_playerX = player.getX();
 		m_playerY = player.getY();
 		m_playerRot = player.getRot();
+		m_playerStride = player.getStride();
 
 		for (int i = 0; i < RAYS; i++) {
 			double rayScreenPos = (double) (((double) (-RAYS) / 2.0) + i)
@@ -315,13 +316,8 @@ public class RayCaster extends SimpleDrawable {
 	 *            The graphics object passed by the engine
 	 */
 	public void draw(Graphics2D g) {
-		if (m_oy != 0.0) {
-			AffineTransform t = new AffineTransform();
-			t.translate(0.0, m_oy);
-			g.setTransform(t);
-		}
 
-		m_renderQueue.draw(g);
+		m_renderQueue.draw(g,m_playerStride);
 		m_renderQueue.clear();
 
 		g.setTransform(NULL_TRANSFORM);
