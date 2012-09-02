@@ -9,12 +9,12 @@ public class Player {
 	// Constants
 	private static final float MOVE_SPEED = 0.08f, ROT_SPEED = 4.0f,
 			RADIUS = 0.35f, ROT_ACC = 0.8f;
-	public static final float LEFT = -1.0f, RIGHT = 1.0f, FORWARD = 1.0f,
+	public static final float LEFT = -1.0f, RIGHT = 1.0f, STRAFE_LEFT = -1.0f, STRAFE_RIGHT = 1.0f, FORWARD = 1.0f,
 			BACK = -1.0f, STRIDE_LENGTH = 4f, STRIDE_HEIGHT = 10f, STRIDE_OFFSET = 0f;
 
 	// Members
 	private float m_x, m_y, m_rot, m_turn = 0f, m_speed = 0f, m_rotspeed = 0f,
-			m_oldturn = 0f, m_stride, m_strideX = 0f;
+			m_oldturn = 0f, m_stride, m_strideX = 0f, m_strafe = 0f;
 	
 	private Block[][] m_map;
 
@@ -42,13 +42,11 @@ public class Player {
 	 * @param timePassed
 	 *            The amount of time since the last call
 	 */
-	public void update(long timePassed) {
+	public void update(int timePassed) {
 		float ticks = (float) timePassed / Game.FPS;
 
 		// Movement acceleration
-		float moveStep = (m_speed * MOVE_SPEED) * ticks;
-		m_strideX += moveStep;
-		m_stride = (float) (STRIDE_HEIGHT * Math.sin(STRIDE_LENGTH * m_strideX) - STRIDE_OFFSET);
+		float moveStep = MOVE_SPEED * ticks;
 		
 		//System.out.println(m_stride);
 
@@ -72,9 +70,30 @@ public class Player {
 		} else if (m_rot > 360) {
 			m_rot -= 360;
 		}
+		
+		float dx = 0, dy = 0; 
+		
+		if (m_speed == FORWARD) {
+			dx += (float) Math.cos(Math.toRadians(m_rot));
+			dy += (float) Math.sin(Math.toRadians(m_rot));
+		} else if (m_speed == BACK) {
+			dx -= (float) Math.cos(Math.toRadians(m_rot));
+			dy -= (float) Math.sin(Math.toRadians(m_rot));
+		}
+		
+		if (m_strafe == STRAFE_LEFT) {
+			dx += (float) Math.cos(Math.toRadians(m_rot-90.0f));
+			dy += (float) Math.sin(Math.toRadians(m_rot-90.0f));
+		} else if (m_strafe == STRAFE_RIGHT) {
+			dx += (float) Math.cos(Math.toRadians(m_rot+90.0f));
+			dy += (float) Math.sin(Math.toRadians(m_rot+90.0f));
+		}
 
-		float x = (float) (m_x + Math.cos(Math.toRadians(m_rot)) * moveStep);
-		float y = (float) (m_y + Math.sin(Math.toRadians(m_rot)) * moveStep);
+		m_strideX += moveStep * Math.sqrt((dx * dx) + (dy * dy));
+		m_stride = (float) (STRIDE_HEIGHT * Math.sin(STRIDE_LENGTH * m_strideX) - STRIDE_OFFSET);
+		
+		float x = (float) (m_x + (dx * moveStep));
+		float y = (float) (m_y + (dy * moveStep));
 
 		int width = m_map.length, height = m_map[0].length;
 		if (!(x < 0 || x >= width || y < 0 || y >= height)) {
@@ -250,5 +269,9 @@ public class Player {
 
 	public float getStride() {
 		return m_stride;
+	}
+
+	public void setStrafe(float v) {
+		m_strafe = v;		
 	}
 }

@@ -10,6 +10,8 @@ public class Settings {
 	ZX80 = 1,
 	
 	TEX_WIDTH = 128;
+	
+	public static float MOUSE_X  = 0.3f;
 
 	/**
 	 * Loads and sets all the settings

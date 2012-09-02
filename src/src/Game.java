@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -30,8 +31,12 @@ public class Game extends GPanel {
 	private Sound sndSiren, sndOpen, sndPause, sndLife, sndDie, sndGhost, sndCherry;
 	
 	private Fader m_vignette;
+	
+	private Mouse m_fpsMouse;
 
 	private int m_uber = 0, m_pillCount = 0, m_pillStart, SCORE_X, SCORE_Y;
+	
+	private float m_mouseX = 0.0f;
 	
 	public Game() {
 		init();
@@ -112,10 +117,19 @@ public class Game extends GPanel {
 		m_pillStart = m_map.getSpriteCount();
 		
 		m_vignette = new Fader(vignette, 0,0,WIDTH,HEIGHT);
+		
+		try {
+			m_fpsMouse = new Mouse();
+			addMouseMotionListener(m_fpsMouse);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	protected void update(int timePassed) {
 		// Update code HERE
+		
+		// System.out.println(m_fpsMouse.dx + " " + m_fpsMouse.dy);
 
 		if (m_uber > 0) {
 			m_uber -= timePassed;
@@ -126,14 +140,9 @@ public class Game extends GPanel {
 			}
 		}
 
-		float turn = 0.0f;
-		if (LEFT) {
-			turn += Player.LEFT;
-		}
-		if (RIGHT) {
-			turn += Player.RIGHT;
-		}
-		m_player.setTurn(turn);
+		normalizeMouse(timePassed, m_fpsMouse.getDX());
+		m_fpsMouse.clear();
+		m_player.setTurn(m_mouseX);
 
 		float speed = 0.0f;
 		if (FORWARD) {
@@ -144,6 +153,15 @@ public class Game extends GPanel {
 		}
 		m_player.setSpeed(speed);
 
+		float strafe = 0.0f;
+		if (LEFT) {
+			strafe += Player.STRAFE_LEFT;
+		}
+		if (RIGHT) {
+			strafe += Player.STRAFE_RIGHT;
+		}
+		m_player.setStrafe(strafe);
+		
 		m_player.update(timePassed);
 
 		int px = (int) Math.floor(m_player.getX());
@@ -193,35 +211,40 @@ public class Game extends GPanel {
 		
 	}
 	
+	private void normalizeMouse(int time_d, float realx) {
+	    float d = (float)(1.0f - Math.exp(Math.log(0.5f) * 100.0f * (float)(time_d / 1000.0f)));
+	    m_mouseX += ((realx * Settings.MOUSE_X) - m_mouseX) * d;
+	}
+	
 	/*
 	 * Keyboard Handlers
 	 */
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_UP) {
+		if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
 			FORWARD = false;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+		if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
 			BACK = false;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+		if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
 			LEFT = false;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
 			RIGHT = false;
 		}
 	}
 
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_UP) {
+		if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
 			FORWARD = true;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+		if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
 			BACK = true;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+		if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
 			LEFT = true;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
 			RIGHT = true;
 		}
 	}
