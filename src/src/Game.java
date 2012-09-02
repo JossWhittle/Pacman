@@ -142,7 +142,7 @@ public class Game extends GPanel {
 
 		normalizeMouse(timePassed, m_fpsMouse.getDX());
 		m_fpsMouse.clear();
-		m_player.setTurn(m_mouseX);
+		m_player.setTurn(Math.max(Math.min(m_mouseX, 5),-5));
 
 		float speed = 0.0f;
 		if (FORWARD) {
