@@ -22,10 +22,13 @@ public class Game extends GPanel {
 	private Player m_player;
 	private RayCaster m_caster;
 	private Minimap m_minimap;
+	private HUD m_hud;
+	
+	private DrawableImage m_gun;
 	
 	private ArrayList<Entity> m_entities;
 	
-	private boolean LEFT = false, RIGHT = false, FORWARD = false, BACK = false;
+	private boolean LEFT = false, RIGHT = false, FORWARD = false, BACK = false, SPRINT = false;
 	
 	private SoundChannel sndWaka;
 	private Sound sndSiren, sndOpen, sndPause, sndLife, sndDie, sndGhost, sndCherry;
@@ -73,7 +76,15 @@ public class Game extends GPanel {
 		
 		int texGhosts = Loader.loadImage("/resource/texture/ghost.png");
 		int texPacman = Loader.loadImage("/resource/texture/pacman.png");
-		int texPills = Loader.loadImage("/resource/texture/pills_small.png");
+		int texPill = Loader.loadImage("/resource/texture/items/pill.png");
+		int texAmmo = Loader.loadImage("/resource/texture/items/ammo.png");
+		int texMap = Loader.loadImage("/resource/texture/minimap.png");
+		int texGun = Loader.loadImage("/resource/texture/weapons/m41a_small.png");
+		
+		int texHUD = Loader.loadImage("/resource/texture/hud/hud.png");
+		int texProgress = Loader.loadImage("/resource/texture/hud/progress.png");
+		int texSprintSymbol = Loader.loadImage("/resource/texture/hud/sprint.png");
+		int texAmmoSymbol = Loader.loadImage("/resource/texture/hud/ammo.png");
 
 		// Sound loading code HERE
 
@@ -90,7 +101,7 @@ public class Game extends GPanel {
 
 		BufferedImage[][][][] texture_walls = Content.processWalls(texWalls, Settings.STRIP_WIDTH);
 		BufferedImage[][] texture_ghosts = Content.processGhosts(texGhosts, 8, 5);
-		BufferedImage[] texture_pills = Content.processPills(texPills, 10, 128);
+		//BufferedImage[] texture_pills = Content.processPills(texPills, 10, 128);
 		
 		BufferedImage[][] texture_xeno = {
 			Loader.splitImage(texXeno[0], 50),
@@ -103,14 +114,15 @@ public class Game extends GPanel {
 
 		m_player = new Player(m_map.getStartX()+0.5f, m_map.getStartY()+0.5f, 180f, m_map.m_map);
 		
-		m_caster = new RayCaster(texture_walls, texture_pills, m_map.m_map, m_map.m_sprite_map);
+		m_caster = new RayCaster(texture_walls, texPill, texAmmo, m_map.m_map, m_map.m_sprite_map);
 		
-		m_minimap = new Minimap(WIDTH - MINIMAP_SIZE - 30, 10, MINIMAP_SIZE, MINIMAP_SIZE, 0,0, m_map.m_map, m_map.m_sprite_map, texPacman);
+		m_gun = new DrawableImage(texGun, WIDTH / 2.0f, HEIGHT, 620, 280, 100, 310);
+		
+		m_minimap = new Minimap(WIDTH - MINIMAP_SIZE - 30, 10, MINIMAP_SIZE, MINIMAP_SIZE, 0,0, m_map.m_map, m_map.m_sprite_map, texMap, texPacman);
+		m_hud  = new HUD(10, HEIGHT-35, 250, 100, 0, 100, texHUD, texProgress, texSprintSymbol, texAmmoSymbol);
 		
 		m_entities = new ArrayList<Entity>();
 		m_entities.add(new AI_Blinky(texture_xeno, m_map.getEnemyX(), m_map.getEnemyY(), m_map.m_path_map));
-		
-		//m_entities.add();
 		
 		SCORE_X = WIDTH - 110;
 		SCORE_Y = MINIMAP_SIZE + 30;
@@ -143,7 +155,9 @@ public class Game extends GPanel {
 		normalizeMouse(timePassed, m_fpsMouse.getDX());
 		m_fpsMouse.clear();
 		m_player.setTurn(Math.max(Math.min(m_mouseX, 5),-5));
-
+		
+		m_player.setSprint(SPRINT);
+		
 		float speed = 0.0f;
 		if (FORWARD) {
 			speed += Player.FORWARD;
@@ -163,6 +177,8 @@ public class Game extends GPanel {
 		m_player.setStrafe(strafe);
 		
 		m_player.update(timePassed);
+		
+		m_hud.update(m_player);
 
 		int px = (int) Math.floor(m_player.getX());
 		int py = (int) Math.floor(m_player.getY());
@@ -201,8 +217,10 @@ public class Game extends GPanel {
 		g.fillRect(0, (int) (HEIGHT / 2.0), WIDTH, (int) (HEIGHT / 2.0));
 		
 		m_caster.draw(g);
+		m_gun.draw(g);
 		m_vignette.draw(g);
 		m_minimap.draw(g);
+		m_hud.draw(g);
 		
 		g.setColor(Color.yellow);
 		g.drawString("" + m_pillCount, SCORE_X, SCORE_Y);
@@ -220,6 +238,9 @@ public class Game extends GPanel {
 	 * Keyboard Handlers
 	 */
 	public void keyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+			SPRINT = false;
+		}
 		if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
 			FORWARD = false;
 		}
@@ -235,6 +256,9 @@ public class Game extends GPanel {
 	}
 
 	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+			SPRINT = true;
+		}
 		if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
 			FORWARD = true;
 		}
@@ -246,6 +270,9 @@ public class Game extends GPanel {
 		}
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
 			RIGHT = true;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			System.exit(0);
 		}
 	}
 

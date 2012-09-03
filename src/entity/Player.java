@@ -7,14 +7,18 @@
 public class Player {
 
 	// Constants
-	private static final float MOVE_SPEED = 0.08f, ROT_SPEED = 4.0f,
-			RADIUS = 0.35f, ROT_ACC = 0.8f;
+	private static final float MOVE_SPEED = 0.06f, ROT_SPEED = 2.0f,
+			RADIUS = 0.35f, ROT_ACC = 0.1f, SPRINT_SPEED = 0.08f, STRIDE_LENGTH = 5f, STRIDE_HEIGHT = 5f, STRIDE_OFFSET = 0f,
+					STAMINA = 5.0f, STAMINA_BLEED = 0.1f;;
+	
 	public static final float LEFT = -1.0f, RIGHT = 1.0f, STRAFE_LEFT = -1.0f, STRAFE_RIGHT = 1.0f, FORWARD = 1.0f,
-			BACK = -1.0f, STRIDE_LENGTH = 4f, STRIDE_HEIGHT = 10f, STRIDE_OFFSET = 0f;
+			BACK = -1.0f; 
 
 	// Members
 	private float m_x, m_y, m_rot, m_turn = 0f, m_speed = 0f, m_rotspeed = 0f,
-			m_oldturn = 0f, m_stride, m_strideX = 0f, m_strafe = 0f;
+			m_oldturn = 0f, m_stride, m_strideX = 0f, m_strafe = 0f, m_stamina = 0f;
+	
+	private boolean m_sprint = false;
 	
 	private Block[][] m_map;
 
@@ -44,9 +48,6 @@ public class Player {
 	 */
 	public void update(int timePassed) {
 		float ticks = (float) timePassed / Game.FPS;
-
-		// Movement acceleration
-		float moveStep = MOVE_SPEED * ticks;
 		
 		//System.out.println(m_stride);
 
@@ -88,8 +89,20 @@ public class Player {
 			dx += (float) Math.cos(Math.toRadians(m_rot+90.0f));
 			dy += (float) Math.sin(Math.toRadians(m_rot+90.0f));
 		}
-
-		m_strideX += moveStep * Math.sqrt((dx * dx) + (dy * dy));
+		
+		// Movement acceleration
+		float moveStep = (m_sprint && (m_stamina < STAMINA) ? SPRINT_SPEED : MOVE_SPEED) * ticks;
+		float delta = (float) (moveStep * Math.sqrt((dx * dx) + (dy * dy)));
+		
+		if (m_sprint) { 
+			m_stamina += delta;
+			if (m_stamina > STAMINA) m_stamina = STAMINA;
+		} else {
+			m_stamina -= STAMINA_BLEED;
+			if (m_stamina < 0) m_stamina = 0;
+		}
+		
+		m_strideX += delta;
 		m_stride = (float) (STRIDE_HEIGHT * Math.sin(STRIDE_LENGTH * m_strideX) - STRIDE_OFFSET);
 		
 		float x = (float) (m_x + (dx * moveStep));
@@ -142,6 +155,18 @@ public class Player {
 	 */
 	private boolean canMove(int x, int y) {
 		return (m_map[x][y] == null);
+	}
+	
+	public float getSprintRatio() {
+		return 1.0f - (m_stamina / STAMINA);
+	}
+	
+	public boolean isSprinting() {
+		return m_sprint;
+	}
+	
+	public void setSprint(boolean s) {
+		m_sprint = s;
 	}
 
 	/**

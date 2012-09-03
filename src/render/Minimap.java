@@ -12,6 +12,8 @@ import java.util.ArrayList;
 public class Minimap extends Drawable {
 
 	// Constants
+	private static final float MAP_ALPHA = 0.18f;
+	private static final Color PILL_COLOUR = new Color(201,231,201), MEGA_COLOUR = new Color(201,241,201);
 	
 	// Members
 	private float m_playerX, m_playerY, m_playerR;
@@ -19,19 +21,20 @@ public class Minimap extends Drawable {
 	private Block[][] m_map;
 	ArrayList<Entity> m_entities;
 	
-	private DrawableImage m_playerSprite;
+	private DrawableImage m_playerSprite, m_mapSprite;
 	
 	private int MAP_W, MAP_H;
 	
-	protected Minimap(float x, float y, float w, float h, float ox, float oy, Block[][] map, int[][] sprite_map, int pimg) {
-		super(x, y, w, h, ox, oy, 0, 0.2f);
+	protected Minimap(float x, float y, float w, float h, float ox, float oy, Block[][] map, int[][] sprite_map, int mimg, int pimg) {
+		super(x, y, w, h, ox, oy, 0, MAP_ALPHA);
 		m_map = map;
 		m_sprite_map = sprite_map;
 		
 		MAP_W = map.length;
 		MAP_H = map[0].length;
 		
-		m_playerSprite = new DrawableImage(pimg,0,0,0,0);
+		m_playerSprite = new DrawableImage(pimg,0,0,0,0,0, MAP_ALPHA);
+		m_mapSprite = new DrawableImage(mimg,x+3,y-5,182,186,ox,oy, 0, 0.25f);
 	}
 	
 	public void update(Player m_player, ArrayList<Entity> entities) {
@@ -47,23 +50,27 @@ public class Minimap extends Drawable {
 		
 		for (int y = 0; y < MAP_H; y++) {
 			for (int x = 0; x < MAP_W; x++) {
-				if (m_map[x][y] != null) {
+				/*if (m_map[x][y] != null) {
 					g.setColor(Map.BLOCK_COLOUR[2]);
 					g.fillRect((int)(getX() + ((MAP_H - y) * BLOCK_W))-1, (int)(getY() + (x * BLOCK_H))-1, (int)Math.ceil(BLOCK_W)+1, (int)Math.ceil(BLOCK_H)+1);
-				} else if (m_sprite_map[x][y] >= Map.SPRITE_PILL) {
+				} else */
+				
+				if (m_sprite_map[x][y] >= Map.SPRITE_PILL) {
 					
-					g.setColor(Color.orange);
+					g.setColor(PILL_COLOUR);
 					g.fill(new Ellipse2D.Double(((getX() - getOX()) + ((MAP_H - y) * BLOCK_W) + 2)-1,
 							((getY() - getOY()) + (x * BLOCK_H) + 2)-1,
 							Math.ceil(BLOCK_W - 4)+1, Math.ceil(BLOCK_H - 4)+1));
 				} else if (m_sprite_map[x][y] == Map.SPRITE_MEGA) {
-					g.setColor(Color.orange);
+					g.setColor(MEGA_COLOUR);
 					g.fill(new Ellipse2D.Double(((getX() - getOX()) + Math.ceil((MAP_H - y) * BLOCK_W) + 1)-1,
 							((getY() - getOY()) + (x * BLOCK_H) + 1)-1,
 							Math.ceil(BLOCK_W - 2)+1, Math.ceil(BLOCK_H - 2)+1));
 				}
 			}
 		}
+		
+		m_mapSprite.draw(g);
 		
 		float px = ((getX() - getOX()) + ((MAP_H - m_playerY + 1) * BLOCK_W));
 		float py = ((getY() - getOY()) + (m_playerX * BLOCK_H));

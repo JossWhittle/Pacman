@@ -16,7 +16,7 @@ public class RayCaster extends SimpleDrawable {
 	// Members
 	private RenderQueue m_renderQueue;
 	private BufferedImage[][][][] m_texWalls;
-	private BufferedImage[] m_texPills;
+	private BufferedImage m_texPill, m_texMega;
 
 	private int RAYS, MAP_W, MAP_H;
 	private float VIEW_DIST, VIEW_DIST2, FOV, FOV_H, PI2;
@@ -30,10 +30,11 @@ public class RayCaster extends SimpleDrawable {
 	/**
 	 * Constructor
 	 */
-	public RayCaster(BufferedImage[][][][] texWalls, BufferedImage[] texPills, Block[][] map, int[][] sprite_map) {
+	public RayCaster(BufferedImage[][][][] texWalls, int texPill, int texMega, Block[][] map, int[][] sprite_map) {
 		super(0, 0, Settings.RES_WIDTH, Settings.RES_HEIGHT, 0, 0);
 		m_texWalls = texWalls;
-		m_texPills = texPills;
+		m_texPill = Loader.getImage(texPill);
+		m_texMega = Loader.getImage(texMega);
 
 		m_renderQueue = new RenderQueue();
 
@@ -154,12 +155,12 @@ public class RayCaster extends SimpleDrawable {
 
 					sprite_dist *= (float)Math.cos(Math.toRadians(m_playerRot) - angle);
 					m_renderQueue.addJob(new DepthImage(
-							m_texPills[m_sprite_map[wallX][wallY] - 1],
-							((getW() / 2.0f) + ((float)Math.tan(sprite_angle) * VIEW_DIST) - 
-									(sprite_size / 2.0f)),
-							((getH() - sprite_size) / 2.0f),
-							sprite_size, 
-							sprite_size,sprite_dist,false), 
+							(m_sprite_map[wallX][wallY] == 1 ? m_texMega : m_texPill),
+							((getW() / 2.0f)
+									+ ((float)Math.tan(sprite_angle) * VIEW_DIST) - (sprite_size / 2.0f)) + (sprite_size/4.0f),
+							((getH() - sprite_size) / 2.0f) + (sprite_size/2.0f),
+							(sprite_size/2.0f), 
+							(sprite_size/2.0f),sprite_dist,false),
 							sprite_dist);
 
 				}
@@ -245,11 +246,12 @@ public class RayCaster extends SimpleDrawable {
 					sprite_dist *= (float)Math
 							.cos(Math.toRadians(m_playerRot) - angle);
 					m_renderQueue.addJob(new DepthImage(
-							m_texPills[m_sprite_map[wallX][wallY] - 1],
+							(m_sprite_map[wallX][wallY] == 1 ? m_texMega : m_texPill),
 							((getW() / 2.0f)
-									+ ((float)Math.tan(sprite_angle) * VIEW_DIST) - (sprite_size / 2.0f)),
-							((getH() - sprite_size) / 2.0f),
-							sprite_size, sprite_size,sprite_dist,false),
+									+ ((float)Math.tan(sprite_angle) * VIEW_DIST) - (sprite_size / 2.0f)) + (sprite_size/4.0f),
+							((getH() - sprite_size) / 2.0f) + (sprite_size/2.0f),
+							(sprite_size/2.0f), 
+							(sprite_size/2.0f),sprite_dist,false),
 							sprite_dist);
 
 				}
