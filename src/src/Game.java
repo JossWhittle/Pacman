@@ -116,7 +116,7 @@ public class Game extends GPanel {
 		
 		m_caster = new RayCaster(texture_walls, texPill, texAmmo, m_map.m_map, m_map.m_sprite_map);
 		
-		m_gun = new DrawableImage(texGun, WIDTH / 2.0f, HEIGHT, 620, 280, 100, 310);
+		m_gun = new DrawableImage(texGun, WIDTH / 2.0f, HEIGHT, 620, 280, 100, 300);
 		
 		m_minimap = new Minimap(WIDTH - MINIMAP_SIZE - 30, 10, MINIMAP_SIZE, MINIMAP_SIZE, 0,0, m_map.m_map, m_map.m_sprite_map, texMap, texPacman);
 		m_hud  = new HUD(10, HEIGHT-35, 250, 100, 0, 100, texHUD, texProgress, texSprintSymbol, texAmmoSymbol);
