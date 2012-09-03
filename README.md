@@ -9,11 +9,17 @@ The theme of the game has moved away from a traditional Pacman clone as has move
 
 The game model is as follows:
 
-- You are a lone marine trapped inside the LV426 Colony, your squad mates are presumed dead.
-- You are armed with an M41A Pulse Rifle but you have no bullets left!
-- There are four dead bodies of you fallen comrades laying around the map in the locations of the Pacman Mega-Pills. Each body has 1 magazines worth of salvageable ammo containing 25 bullets. (There are 100 total bullets per level)
-- The floor of the LV426 Colony is strewn with items that were knocked over or dropped when the chaos began, amidst the rubble you can find batteries to power your flashlight. (These batteries would be the normal pills from Pacman)
-- There is also a Motion Tracker at the location of the Pacman Cherry. The motion tracker will show the player the location and range of any Xenomorphs in the direction it is looking.
+	- You are a lone marine trapped inside the LV426 Colony, your squad mates are presumed dead.
+	- You are armed with an M41A Pulse Rifle but you have no bullets left!
+	- There are four dead bodies of you fallen comrades laying around the map in the locations of the Pacman Mega-Pills. Each body has 1 magazines worth of salvageable ammo containing 25 bullets. (There are 100 total bullets per level)
+	- The floor of the LV426 Colony is strewn with items that were knocked over or dropped when the chaos began, amidst the rubble you can find batteries to power your flashlight. (These batteries would be the normal pills from Pacman)
+	- There is also a Motion Tracker at the location of the Pacman Cherry. The motion tracker will show the player the location and range of any Xenomorphs in the direction it is looking.
+
+### PLEASE DON'T SUE ME!
+
+I am a lone developer making this game for fun and for education, THIS GAME IS NOT FOR PROFIT.
+
+Yes I have found textures on google, yes I am using the premise of the move 'Aliens' for the theme; but I am not affecting your profits or product image in any way shape of form so... So just fuck off and leave me to making my little game.
 
 ## Contributing
 
