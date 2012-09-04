@@ -17,14 +17,18 @@ public class Game extends GPanel {
 	private static final Color FLOOR = new Color(7,7,7), CEILING = new Color(7,7,7); // new Color(13,10,10)
 	private static final int MINIMAP_SIZE = 175, UBER = 10000, AMMO_DROP = 25;
 	
+	private static final int GAME_MODE_PLAY = 0, GAME_MODE_PAUSE = 1, GAME_MODE_DEAD = 2, GAME_MODE_DYING = 3, GAME_MODE_MENU = 4;
+	
 	// Members
+	private int m_gameMode = GAME_MODE_PLAY;
+	
 	private Map m_map;
 	private Player m_player;
 	private RayCaster m_caster;
 	private Minimap m_minimap;
 	private HUD m_hud;
 	
-	private DrawableImage m_gun;
+	private DrawableImage m_gun, m_killSprite;
 	
 	private ArrayList<Entity> m_entities;
 	
@@ -33,7 +37,7 @@ public class Game extends GPanel {
 	private SoundChannel sndWaka;
 	private Sound sndSiren, sndOpen, sndPause, sndLife, sndDie, sndGhost, sndCherry;
 	
-	private Fader m_vignette;
+	private Fader m_vignette, m_blackFade;
 	
 	private Mouse m_fpsMouse;
 
@@ -78,12 +82,6 @@ public class Game extends GPanel {
 	public Game() {
 		init();
 
-		// Map loading code HERE
-
-		int mapWalls = Loader.loadImage("/resource/map/pacmanmap_walls.gif");
-		int mapSprites = Loader.loadImage("/resource/map/pacmanmap_sprites.gif");
-		int mapPaths = Loader.loadImage("/resource/map/pacmanmap_paths.gif");
-
 		// Texture loading code HERE
 		
 		int vignette = Loader.loadImage("/resource/texture/effects/vignette.png");
@@ -116,6 +114,7 @@ public class Game extends GPanel {
 		int texPacman = Loader.loadImage("/resource/texture/hud/pacman.png");
 		int texMap = Loader.loadImage("/resource/texture/hud/minimap.png");
 		int texHUD = Loader.loadImage("/resource/texture/hud/hud.png");
+		int texXenoKill = Loader.loadImage("/resource/texture/hud/xeno_small.png");
 		int texProgress = Loader.loadImage("/resource/texture/hud/progress.png");
 		int texSprintSymbol = Loader.loadImage("/resource/texture/hud/sprint.png");
 		int texAmmoSymbol = Loader.loadImage("/resource/texture/hud/ammo.png");
@@ -165,6 +164,11 @@ public class Game extends GPanel {
 		m_hud  = new HUD(10, HEIGHT-35, 250, 100, 0, 100, texHUD, texProgress, texSprintSymbol, texAmmoSymbol);
 		
 		m_vignette = new Fader(vignette, 0,0,WIDTH,HEIGHT);
+		m_blackFade = new Fader(FLOOR, 0,0,WIDTH,HEIGHT);	
+		m_blackFade.setAlpha(0f);
+		m_blackFade.setFadeTarget(new float[][]{{0.25f, 2000f},{1f, 1000f}});
+		
+		m_killSprite = new DrawableImage(texXenoKill,-150,100,WIDTH,HEIGHT,0 ,0, 350, 1);
 		
 		
 		m_entities = new ArrayList<Entity>();
@@ -190,109 +194,133 @@ public class Game extends GPanel {
 	protected void update(int timePassed) {
 		// Update code HERE
 		
-		// System.out.println(m_fpsMouse.dx + " " + m_fpsMouse.dy);
-		
-		m_levels[m_levelIndex].update(timePassed, m_entities);
+		if (m_gameMode == GAME_MODE_PLAY) {
+			m_levels[m_levelIndex].update(timePassed, m_entities);
 
-		if (m_uber > 0) {
-			m_uber -= timePassed;
-			if (m_uber <= 0) {
-				m_uber = 0;
-				sndSiren.stop();
-				m_vignette.setFadeTarget(new float[][]{{1f,2000f}});
+			if (m_uber > 0) {
+				m_uber -= timePassed;
+				if (m_uber <= 0) {
+					m_uber = 0;
+					sndSiren.stop();
+					m_vignette.setFadeTarget(new float[][]{{1f,2000f}});
+				}
 			}
-		}
 
-		normalizeMouse(timePassed, m_fpsMouse.getDX());
-		m_fpsMouse.clear();
-		m_player.setTurn(Math.max(Math.min(m_mouseX, 5),-5));
-		
-		m_player.setSprint(SPRINT);
-		
-		float speed = 0.0f;
-		if (FORWARD) {
-			speed += Player.FORWARD;
-		}
-		if (BACK) {
-			speed += Player.BACK;
-		}
-		m_player.setSpeed(speed);
+			normalizeMouse(timePassed, m_fpsMouse.getDX());
+			m_fpsMouse.clear();
+			m_player.setTurn(Math.max(Math.min(m_mouseX, 5),-5));
+			
+			m_player.setSprint(SPRINT);
+			
+			float speed = 0.0f;
+			if (FORWARD) {
+				speed += Player.FORWARD;
+			}
+			if (BACK) {
+				speed += Player.BACK;
+			}
+			m_player.setSpeed(speed);
 
-		float strafe = 0.0f;
-		if (LEFT) {
-			strafe += Player.STRAFE_LEFT;
-		}
-		if (RIGHT) {
-			strafe += Player.STRAFE_RIGHT;
-		}
-		m_player.setStrafe(strafe);
-		
-		m_player.update(timePassed);
-		
-		m_hud.update(m_player);
+			float strafe = 0.0f;
+			if (LEFT) {
+				strafe += Player.STRAFE_LEFT;
+			}
+			if (RIGHT) {
+				strafe += Player.STRAFE_RIGHT;
+			}
+			m_player.setStrafe(strafe);
+			
+			m_player.update(timePassed);
+			
+			m_hud.update(m_player);
 
-		int px = (int) Math.floor(m_player.getX());
-		int py = (int) Math.floor(m_player.getY());
-		if (m_map.m_sprite_map[px][py] >= Map.SPRITE_PILL) {
-			m_map.m_sprite_map[px][py] = 0;
-			m_pillCount++;
-			
-			if (m_pillCount >= m_pillStart) {
-				nextLevel();
-			}
-			
-			if (m_uber == 0) {
-				//sndWaka.play();
-				m_vignette.setFadeTarget(new float[][]{{0.8f,50f},{1f,100f}});
-			}
-		} else if (m_map.m_sprite_map[px][py] == Map.SPRITE_MEGA) {
-			m_map.m_sprite_map[px][py] = 0;
-			
-			m_player.giveAmmo(AMMO_DROP);
-			
-			m_vignette.setFadeTarget(new float[][]{{0.75f,50f}});
-			//sndSiren.loop();
-			m_uber += UBER;
-		}
-		
-		for (int i = 0; i < m_entities.size(); i++) {
-			m_entities.get(i).update(timePassed, m_player);
-			
-			if (m_entities.get(i) instanceof AI_Inky) {
-				((AI_Inky)m_entities.get(i)).setBlinky(m_entities.get(0).getX(), m_entities.get(0).getY());
-			}
-			
-			if ((int)m_entities.get(i).getX() == (int)m_player.getX() && (int)m_entities.get(i).getY() == (int)m_player.getY()) {
-				// You dead
+			int px = (int) Math.floor(m_player.getX());
+			int py = (int) Math.floor(m_player.getY());
+			if (m_map.m_sprite_map[px][py] >= Map.SPRITE_PILL) {
+				m_map.m_sprite_map[px][py] = 0;
+				m_pillCount++;
 				
-				sndDie.play();
+				if (m_pillCount >= m_pillStart) {
+					nextLevel();
+				}
+				
+				if (m_uber == 0) {
+					//sndWaka.play();
+					m_vignette.setFadeTarget(new float[][]{{0.8f,50f},{1f,100f}});
+				}
+			} else if (m_map.m_sprite_map[px][py] == Map.SPRITE_MEGA) {
+				m_map.m_sprite_map[px][py] = 0;
+				
+				m_player.giveAmmo(AMMO_DROP);
+				
+				m_vignette.setFadeTarget(new float[][]{{0.75f,50f}});
+				//sndSiren.loop();
+				m_uber += UBER;
 			}
-		}
-		
-		m_caster.update(m_player, m_entities);
-		
-		m_minimap.update(m_player, m_entities);
-		
-		m_vignette.update(timePassed);
+			
+			for (int i = 0; i < m_entities.size(); i++) {
+				m_entities.get(i).update(timePassed, m_player);
+				
+				if (m_entities.get(i) instanceof AI_Inky) {
+					((AI_Inky)m_entities.get(i)).setBlinky(m_entities.get(0).getX(), m_entities.get(0).getY());
+				}
+				
+				if ((int)m_entities.get(i).getX() == (int)m_player.getX() && (int)m_entities.get(i).getY() == (int)m_player.getY()) {
+					// You dead
+					
+					m_gameMode = GAME_MODE_DYING;
+					sndDie.play();
+				}
+			}
+			
+			m_caster.update(m_player, m_entities);
+			m_minimap.update(m_player, m_entities);
+			m_vignette.update(timePassed);
+			
+		} else if (m_gameMode == GAME_MODE_DYING) {
+			
+			m_blackFade.update(timePassed);
+		} else if (m_gameMode == GAME_MODE_DEAD) {
+			
+			
+		} 
 	}
 
 	protected void draw(Graphics2D g) {
 		// Draw code HERE (No update calls!)
-		g.setColor(CEILING);
-		g.fillRect(0, 0, WIDTH, (int) (HEIGHT / 2.0));
-		g.setColor(FLOOR);
-		g.fillRect(0, (int) (HEIGHT / 2.0), WIDTH, (int) (HEIGHT / 2.0));
 		
-		m_caster.draw(g);
-		m_gun.draw(g);
-		m_vignette.draw(g);
-		m_minimap.draw(g);
-		m_hud.draw(g);
+		if (m_gameMode == GAME_MODE_PLAY || m_gameMode == GAME_MODE_DYING) {
+			g.setColor(CEILING);
+			g.fillRect(0, 0, WIDTH, (int) (HEIGHT / 2.0));
+			g.setColor(FLOOR);
+			g.fillRect(0, (int) (HEIGHT / 2.0), WIDTH, (int) (HEIGHT / 2.0));
+			
+			m_caster.draw(g);
+			
+			if (m_gameMode == GAME_MODE_DYING) {
+				m_killSprite.draw(g);
+			}
+			
+			m_gun.draw(g);
+			
+			m_vignette.draw(g);
+			
+			if (m_gameMode == GAME_MODE_PLAY) {
+				m_minimap.draw(g);
+				m_hud.draw(g);
+			}
+			
+			if (m_gameMode == GAME_MODE_DYING) {
+				m_blackFade.draw(g);
+			}
+		} else if (m_gameMode == GAME_MODE_DEAD) {
+			
+		}
 		
-		g.setColor(Color.yellow);
+		/*g.setColor(Color.yellow);
 		g.drawString("" + m_pillCount, SCORE_X, SCORE_Y);
 		g.drawString("/", SCORE_X + 40, SCORE_Y);
-		g.drawString("" + m_pillStart, SCORE_X + 50, SCORE_Y);
+		g.drawString("" + m_pillStart, SCORE_X + 50, SCORE_Y);*/
 		
 	}
 	
