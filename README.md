@@ -17,9 +17,9 @@ The game model is as follows:
 
 ### PLEASE DON'T SUE ME!
 
-I am a lone developer making this game for fun and for education, THIS GAME IS NOT FOR PROFIT.
+I am a lone developer making this game for fun and for my own education, THIS GAME IS NOT FOR PROFIT.
 
-Yes I have found textures on google (though I have highly modified those I found), yes I am using the premise of the move 'Aliens' for the theme; but I am not affecting your profits or product image in any way shape of form so... So just fuck off and leave me to making my little game.
+Yes I have found textures on google (though I have highly modified those I found), yes I am using the premise of the film 'Aliens' for the theme; but I am not affecting your profits or product image in any way shape of form so... So just fuck off and leave me to making my little game.
 
 ## Contributing
 
