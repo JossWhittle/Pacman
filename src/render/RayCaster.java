@@ -38,7 +38,7 @@ public class RayCaster extends SimpleDrawable {
 
 		m_renderQueue = new RenderQueue();
 
-		FOV = (float) Math.toRadians(60.0f);
+		FOV = (float) Math.toRadians(Settings.FIELD_OF_VIEW);
 		FOV_H = FOV / 2.0f;
 		PI2 = (float) (Math.PI * 2.0f);
 

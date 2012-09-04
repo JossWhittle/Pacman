@@ -7,18 +7,26 @@
 public class Player {
 
 	// Constants
-	private static final float MOVE_SPEED = 0.06f, ROT_SPEED = 2.0f,
+	private static final float MOVE_SPEED = 0.05f, ROT_SPEED = 2.0f,
 			RADIUS = 0.35f, ROT_ACC = 0.1f, SPRINT_SPEED = 0.08f, STRIDE_LENGTH = 5f, STRIDE_HEIGHT = 5f, STRIDE_OFFSET = 0f,
 					STAMINA = 5.0f, STAMINA_BLEED = 0.1f;;
 	
 	public static final float LEFT = -1.0f, RIGHT = 1.0f, STRAFE_LEFT = -1.0f, STRAFE_RIGHT = 1.0f, FORWARD = 1.0f,
 			BACK = -1.0f; 
+	
+	private static final int MAX_AMMO = 100;
+	
+	public static final int REL_MOVE_UP = 0, REL_MOVE_LEFT = 1, REL_MOVE_DOWN = 2, REL_MOVE_RIGHT = 3;
 
 	// Members
 	private float m_x, m_y, m_rot, m_turn = 0f, m_speed = 0f, m_rotspeed = 0f,
 			m_oldturn = 0f, m_stride, m_strideX = 0f, m_strafe = 0f, m_stamina = 0f;
 	
+	private int m_relDir = 0;
+	
 	private boolean m_sprint = false;
+	
+	private int m_ammo = 0;
 	
 	private Block[][] m_map;
 
@@ -140,6 +148,24 @@ public class Player {
 				m_y = y;
 			}
 		}
+		
+		if (dy >= 0) { 
+			if (dx < 0 && dx < -dy) {
+				m_relDir = REL_MOVE_LEFT;
+			} else if (dx > 0 && dx > dy) {
+				m_relDir = REL_MOVE_RIGHT;
+			} else {
+				m_relDir = REL_MOVE_DOWN;
+			}
+		} else {
+			if (dx < 0 && dx < dy) {
+				m_relDir = REL_MOVE_LEFT;
+			} else if (dx > 0 && dx > -dy) {
+				m_relDir = REL_MOVE_RIGHT;
+			} else {
+				m_relDir = REL_MOVE_UP;
+			}
+		}
 	}
 
 	/**
@@ -167,6 +193,10 @@ public class Player {
 	
 	public void setSprint(boolean s) {
 		m_sprint = s;
+	}
+	
+	public int getRelDir() {
+		return m_relDir;
 	}
 
 	/**
@@ -298,5 +328,20 @@ public class Player {
 
 	public void setStrafe(float v) {
 		m_strafe = v;		
+	}
+
+	public void giveAmmo(int ammoDrop) {
+		m_ammo += ammoDrop;
+		if (m_ammo > MAX_AMMO) {
+			m_ammo = MAX_AMMO;
+		}
+	}
+	
+	public int getAmmo() {
+		return m_ammo;
+	}
+	
+	public float getAmmoRatio() {
+		return (float)m_ammo / (float)MAX_AMMO;
 	}
 }

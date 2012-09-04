@@ -73,6 +73,11 @@ public class Loader {
 		}
 		return -1;
 	}
+	
+	public static void unloadImage(int index) {
+		System.out.println("Unloading Image " + index);
+		m_content[index] = null;
+	}
 
 	/**
 	 * Splits an image into an array of sprites

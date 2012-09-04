@@ -22,7 +22,9 @@ public class HUD extends Drawable {
 	
 	public void update(Player p) {
 		m_progressSprint.setProgress(p.getSprintRatio());
+		m_progressAmmo.setProgress(p.getAmmoRatio());
 		m_iconSprint.setAlpha((p.isSprinting() ? HUD_ALPHA : 0.1f));
+		m_iconAmmo.setAlpha((p.getAmmo() > 0 ? HUD_ALPHA : 0.1f));
 	}
 
 	protected void drawContent(Graphics2D g) {

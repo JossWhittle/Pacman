@@ -1,15 +1,15 @@
 import java.awt.image.BufferedImage;
 
 
-public class AI_Blinky extends Entity {
+public class AI_Clyde extends Entity {
 
 	// Constants
 	
 	// Members
 	
-	public AI_Blinky(BufferedImage[][] img, int spawnX, int spawnY, int[][] paths) {
+	public AI_Clyde(BufferedImage[][] img, int spawnX, int spawnY, int[][] paths) {
 		init(img,spawnX,spawnY, paths);
-		setHome(-2,2);
+		setHome(31,27);
 		targetHome();
 		
 		scatterMode();
@@ -19,7 +19,11 @@ public class AI_Blinky extends Entity {
 		if (m_mode == MODE_SCATTER) {
 			targetHome();
 		} else if (m_mode == MODE_CHASE) {
-			setTarget((int)(p.getX()),(int)(p.getY()));
+			if (distanceToTarget(p.getX(),p.getY()) < 8) {
+				targetHome();
+			} else {
+				setTarget((int)(p.getX()),(int)(p.getY()));
+			}
 		}
 	}
 

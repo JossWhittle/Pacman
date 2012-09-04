@@ -11,7 +11,7 @@ public class Settings {
 	
 	TEX_WIDTH = 128;
 	
-	public static float MOUSE_X  = 0.15f;
+	public static float MOUSE_X  = 0.15f, FIELD_OF_VIEW = 60.0f;
 
 	/**
 	 * Loads and sets all the settings

@@ -261,6 +261,14 @@ public abstract class Entity {
 		}
 		return null;
 	}
+	
+	public int getX() {
+		return (int) m_x;
+	}
+	
+	public int getY() {
+		return (int) m_y;
+	}
 
 	/**
 	 * Sets the home grid for the ai

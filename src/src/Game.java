@@ -15,7 +15,7 @@ public class Game extends GPanel {
 
 	// Constants
 	private static final Color FLOOR = new Color(7,7,7), CEILING = new Color(7,7,7); // new Color(13,10,10)
-	private static final int MINIMAP_SIZE = 175, UBER = 10000;
+	private static final int MINIMAP_SIZE = 175, UBER = 10000, AMMO_DROP = 25;
 	
 	// Members
 	private Map m_map;
@@ -37,9 +37,43 @@ public class Game extends GPanel {
 	
 	private Mouse m_fpsMouse;
 
-	private int m_uber = 0, m_pillCount = 0, m_pillStart, SCORE_X, SCORE_Y;
+	private int m_uber = 0, m_ammo = 0, m_pillCount = 0, m_pillStart, SCORE_X, SCORE_Y;
 	
 	private float m_mouseX = 0.0f;
+	
+	private int m_level = 0, m_levelIndex = 0;
+	private GameLevel[] m_levels = {
+		new GameLevel(new GameEvent[]{
+			new ScatterEvent(0),
+			new ChaseEvent(7),
+			new ScatterEvent(27),
+			new ChaseEvent(34),
+			new ScatterEvent(54),
+			new ChaseEvent(59),
+			new ScatterEvent(79),
+			new ChaseEvent(64)
+		}),
+		new GameLevel(new GameEvent[]{
+			new ScatterEvent(0),
+			new ChaseEvent(7),
+			new ScatterEvent(27),
+			new ChaseEvent(34),
+			new ScatterEvent(54),
+			new ChaseEvent(59),
+			new ScatterEvent(1092),
+			new ChaseEvent(1092+(1.0f/60.0f))
+		}),
+		new GameLevel(new GameEvent[]{
+			new ScatterEvent(0),
+			new ChaseEvent(7),
+			new ScatterEvent(27),
+			new ChaseEvent(34),
+			new ScatterEvent(54),
+			new ChaseEvent(59),
+			new ScatterEvent(1096),
+			new ChaseEvent(1096+(1.0f/60.0f))
+		})
+	};
 	
 	public Game() {
 		init();
@@ -52,19 +86,19 @@ public class Game extends GPanel {
 
 		// Texture loading code HERE
 		
-		int vignette = Loader.loadImage("/resource/texture/vignette.png");
+		int vignette = Loader.loadImage("/resource/texture/effects/vignette.png");
 
 		int[][] texWalls = {{
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_1.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_2.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_3.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_marine_4.gif")
+			Loader.loadImage("/resource/texture/walls/wall_marine_1.gif"),
+			Loader.loadImage("/resource/texture/walls/wall_marine_2.gif"),
+			Loader.loadImage("/resource/texture/walls/wall_marine_3.gif"),
+			Loader.loadImage("/resource/texture/walls/wall_marine_4.gif")
 		},
 		{
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_rust_1.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_rust_2.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_rust_4.gif"),
-			Loader.loadImage("/resource/texture/dev/gif/small/wall_alien_rust_3.gif")
+			Loader.loadImage("/resource/texture/walls/wall_alien_rust_1.gif"),
+			Loader.loadImage("/resource/texture/walls/wall_alien_rust_2.gif"),
+			Loader.loadImage("/resource/texture/walls/wall_alien_rust_4.gif"),
+			Loader.loadImage("/resource/texture/walls/wall_alien_rust_3.gif")
 		}};
 		
 		int[] texXeno = {
@@ -74,17 +108,37 @@ public class Game extends GPanel {
 			Loader.loadImage("/resource/texture/xeno/xeno_back.gif")
 		};
 		
-		int texGhosts = Loader.loadImage("/resource/texture/ghost.png");
-		int texPacman = Loader.loadImage("/resource/texture/pacman.png");
 		int texPill = Loader.loadImage("/resource/texture/items/pill.png");
 		int texAmmo = Loader.loadImage("/resource/texture/items/ammo.png");
-		int texMap = Loader.loadImage("/resource/texture/minimap.png");
+		
 		int texGun = Loader.loadImage("/resource/texture/weapons/m41a_small.png");
 		
+		int texPacman = Loader.loadImage("/resource/texture/hud/pacman.png");
+		int texMap = Loader.loadImage("/resource/texture/hud/minimap.png");
 		int texHUD = Loader.loadImage("/resource/texture/hud/hud.png");
 		int texProgress = Loader.loadImage("/resource/texture/hud/progress.png");
 		int texSprintSymbol = Loader.loadImage("/resource/texture/hud/sprint.png");
 		int texAmmoSymbol = Loader.loadImage("/resource/texture/hud/ammo.png");
+		
+		BufferedImage[][][][] texture_walls = Content.processWalls(texWalls, Settings.STRIP_WIDTH);
+		
+		BufferedImage[][] texture_xeno = {
+			Loader.splitImage(texXeno[0], 50),
+			Loader.splitImage(texXeno[1], 100),
+			Loader.splitImage(texXeno[2], 100),
+			Loader.splitImage(texXeno[3], 50)
+		};
+		
+		// Unload raw walls
+		for (int u = 0; u < texWalls.length; u++) {
+			for (int v = 0; v < texWalls[u].length; v++) {
+				Loader.unloadImage(texWalls[u][v]);
+			}
+		}
+		// Unload raw xeno
+		for (int v = 0; v < texXeno.length; v++) {
+			Loader.unloadImage(texXeno[v]);
+		}
 
 		// Sound loading code HERE
 
@@ -96,19 +150,8 @@ public class Game extends GPanel {
 		sndDie = new Sound("/resource/sound/die.wav");
 		sndGhost = new Sound("/resource/sound/ghost.wav");
 		sndCherry = new Sound("/resource/sound/cherry.wav");
-
-		// Variable initialization code HERE
-
-		BufferedImage[][][][] texture_walls = Content.processWalls(texWalls, Settings.STRIP_WIDTH);
-		BufferedImage[][] texture_ghosts = Content.processGhosts(texGhosts, 8, 5);
-		//BufferedImage[] texture_pills = Content.processPills(texPills, 10, 128);
 		
-		BufferedImage[][] texture_xeno = {
-			Loader.splitImage(texXeno[0], 50),
-			Loader.splitImage(texXeno[1], 100),
-			Loader.splitImage(texXeno[2], 100),
-			Loader.splitImage(texXeno[3], 50)
-		};
+		// Variable initialization code HERE
 
 		m_map = new Map();
 
@@ -121,14 +164,18 @@ public class Game extends GPanel {
 		m_minimap = new Minimap(WIDTH - MINIMAP_SIZE - 30, 10, MINIMAP_SIZE, MINIMAP_SIZE, 0,0, m_map.m_map, m_map.m_sprite_map, texMap, texPacman);
 		m_hud  = new HUD(10, HEIGHT-35, 250, 100, 0, 100, texHUD, texProgress, texSprintSymbol, texAmmoSymbol);
 		
+		m_vignette = new Fader(vignette, 0,0,WIDTH,HEIGHT);
+		
+		
 		m_entities = new ArrayList<Entity>();
 		m_entities.add(new AI_Blinky(texture_xeno, m_map.getEnemyX(), m_map.getEnemyY(), m_map.m_path_map));
+		m_entities.add(new AI_Pinky(texture_xeno, m_map.getEnemyX(), m_map.getEnemyY(), m_map.m_path_map));
+		m_entities.add(new AI_Inky(texture_xeno, m_map.getEnemyX(), m_map.getEnemyY(), m_map.m_path_map));
+		m_entities.add(new AI_Clyde(texture_xeno, m_map.getEnemyX(), m_map.getEnemyY(), m_map.m_path_map));
 		
 		SCORE_X = WIDTH - 110;
 		SCORE_Y = MINIMAP_SIZE + 30;
 		m_pillStart = m_map.getSpriteCount();
-		
-		m_vignette = new Fader(vignette, 0,0,WIDTH,HEIGHT);
 		
 		try {
 			m_fpsMouse = new Mouse();
@@ -136,12 +183,16 @@ public class Game extends GPanel {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("Map size " + m_map.m_map.length + ", " + m_map.m_map[0].length);
 	}
 
 	protected void update(int timePassed) {
 		// Update code HERE
 		
 		// System.out.println(m_fpsMouse.dx + " " + m_fpsMouse.dy);
+		
+		m_levels[m_levelIndex].update(timePassed, m_entities);
 
 		if (m_uber > 0) {
 			m_uber -= timePassed;
@@ -186,12 +237,18 @@ public class Game extends GPanel {
 			m_map.m_sprite_map[px][py] = 0;
 			m_pillCount++;
 			
+			if (m_pillCount >= m_pillStart) {
+				nextLevel();
+			}
+			
 			if (m_uber == 0) {
 				//sndWaka.play();
 				m_vignette.setFadeTarget(new float[][]{{0.8f,50f},{1f,100f}});
 			}
 		} else if (m_map.m_sprite_map[px][py] == Map.SPRITE_MEGA) {
 			m_map.m_sprite_map[px][py] = 0;
+			
+			m_player.giveAmmo(AMMO_DROP);
 			
 			m_vignette.setFadeTarget(new float[][]{{0.75f,50f}});
 			//sndSiren.loop();
@@ -200,6 +257,16 @@ public class Game extends GPanel {
 		
 		for (int i = 0; i < m_entities.size(); i++) {
 			m_entities.get(i).update(timePassed, m_player);
+			
+			if (m_entities.get(i) instanceof AI_Inky) {
+				((AI_Inky)m_entities.get(i)).setBlinky(m_entities.get(0).getX(), m_entities.get(0).getY());
+			}
+			
+			if ((int)m_entities.get(i).getX() == (int)m_player.getX() && (int)m_entities.get(i).getY() == (int)m_player.getY()) {
+				// You dead
+				
+				sndDie.play();
+			}
 		}
 		
 		m_caster.update(m_player, m_entities);
@@ -232,6 +299,16 @@ public class Game extends GPanel {
 	private void normalizeMouse(int time_d, float realx) {
 	    float d = (float)(1.0f - Math.exp(Math.log(0.5f) * 100.0f * (float)(time_d / 1000.0f)));
 	    m_mouseX += ((realx * Settings.MOUSE_X) - m_mouseX) * d;
+	}
+	
+	private void nextLevel() {
+		m_level++;
+		
+		if (m_level >= 2 && m_level < 5) {
+			m_levelIndex = 1;
+		} else if (m_level >= 5) {
+			m_levelIndex = 2;
+		}
 	}
 	
 	/*
