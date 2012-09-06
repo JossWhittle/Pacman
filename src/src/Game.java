@@ -28,7 +28,10 @@ public class Game extends GPanel {
 	private Minimap m_minimap;
 	private HUD m_hud;
 	
-	private DrawableImage m_gun, m_killSprite;
+	private DrawableImage m_gun, m_killSprite, m_menuPaused;
+	
+	private ClickableImage m_menuPlay, m_menuSettings, m_menuHighscores;
+	private Cursor m_cursor;
 	
 	private ArrayList<Entity> m_entities;
 	
@@ -119,6 +122,12 @@ public class Game extends GPanel {
 		int texSprintSymbol = Loader.loadImage("/resource/texture/hud/sprint.png");
 		int texAmmoSymbol = Loader.loadImage("/resource/texture/hud/ammo.png");
 		
+		int texCursor = Loader.loadImage("/resource/menu/cursor.png");
+		int texMenuPaused = Loader.loadImage("/resource/menu/banner_paused.png");
+		int texMenuPlay = Loader.loadImage("/resource/menu/item_play.png");
+		int texMenuHighScore = Loader.loadImage("/resource/menu/item_highscores.png");
+		int texMenuSettings = Loader.loadImage("/resource/menu/item_settings.png");
+		
 		BufferedImage[][][][] texture_walls = Content.processWalls(texWalls, Settings.STRIP_WIDTH);
 		
 		BufferedImage[][] texture_xeno = {
@@ -151,6 +160,10 @@ public class Game extends GPanel {
 		sndCherry = new Sound("/resource/sound/cherry.wav");
 		
 		// Variable initialization code HERE
+		
+		m_cursor = new Cursor(texCursor,WIDTH/2.0f,HEIGHT/2.0f,20,20, 0.5f);
+		m_menuPaused = new DrawableImage(texMenuPaused,WIDTH/2.0f,50,512,64,256,0);
+		m_menuPlay = new ClickableImage(texMenuPlay,WIDTH/2.0f,HEIGHT/2.0f,512,64);
 
 		m_map = new Map();
 
@@ -193,8 +206,12 @@ public class Game extends GPanel {
 
 	protected void update(int timePassed) {
 		// Update code HERE
-		
-		if (m_gameMode == GAME_MODE_PLAY) {
+		if (m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
+			
+			m_cursor.update(timePassed,MOUSE_MENU_X, MOUSE_MENU_Y);
+			m_menuPlay.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+			
+		} else if (m_gameMode == GAME_MODE_PLAY) {
 			m_levels[m_levelIndex].update(timePassed, m_entities);
 
 			if (m_uber > 0) {
@@ -268,7 +285,7 @@ public class Game extends GPanel {
 				if ((int)m_entities.get(i).getX() == (int)m_player.getX() && (int)m_entities.get(i).getY() == (int)m_player.getY()) {
 					// You dead
 					
-					m_gameMode = GAME_MODE_DYING;
+					gotoDying();
 					sndDie.play();
 				}
 			}
@@ -288,8 +305,7 @@ public class Game extends GPanel {
 
 	protected void draw(Graphics2D g) {
 		// Draw code HERE (No update calls!)
-		
-		if (m_gameMode == GAME_MODE_PLAY || m_gameMode == GAME_MODE_DYING) {
+		if (m_gameMode == GAME_MODE_PLAY || m_gameMode == GAME_MODE_DYING || m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
 			g.setColor(CEILING);
 			g.fillRect(0, 0, WIDTH, (int) (HEIGHT / 2.0));
 			g.setColor(FLOOR);
@@ -301,9 +317,22 @@ public class Game extends GPanel {
 				m_killSprite.draw(g);
 			}
 			
-			m_gun.draw(g);
+			if (m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
+				
+				if (m_gameMode == GAME_MODE_PAUSE) {
+					m_menuPaused.draw(g);
+				}
+				
+				m_menuPlay.draw(g);
+			} else {
+				m_gun.draw(g);
+			}
 			
 			m_vignette.draw(g);
+			
+			if (m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
+				m_cursor.draw(g);
+			}
 			
 			if (m_gameMode == GAME_MODE_PLAY) {
 				m_minimap.draw(g);
@@ -337,6 +366,33 @@ public class Game extends GPanel {
 		} else if (m_level >= 5) {
 			m_levelIndex = 2;
 		}
+	}
+	
+	private void resetLevel() {
+		
+	}
+	
+	private void gotoMenu() {
+		m_fpsMouse.unhook();
+		m_gameMode = GAME_MODE_MENU;
+	}
+	
+	private void gotoPause() {
+		m_fpsMouse.unhook();
+		m_gameMode = GAME_MODE_PAUSE;
+	}
+	
+	private void gotoPlay() {
+		m_fpsMouse.hook();
+		m_gameMode = GAME_MODE_PLAY;
+	}
+	
+	private void gotoDying() {
+		m_gameMode = GAME_MODE_DYING;
+	}
+	
+	private void gotoDead() {
+		m_gameMode = GAME_MODE_DEAD;
 	}
 	
 	/*
@@ -377,8 +433,37 @@ public class Game extends GPanel {
 			RIGHT = true;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			System.exit(0);
+			if (m_gameMode == GAME_MODE_MENU) {
+				System.exit(0);
+			} else if (m_gameMode == GAME_MODE_PLAY) {
+				gotoPause();
+			} else if (m_gameMode == GAME_MODE_PAUSE) {
+				gotoPlay();
+			} else if (m_gameMode == GAME_MODE_DYING) {
+				gotoDead();
+			} else if (m_gameMode == GAME_MODE_DEAD) {
+				gotoMenu();
+			}
 		}
+	}
+	
+	private boolean LEFT_MOUSE = false;
+	public void mousePressed(MouseEvent e) {
+		LEFT_MOUSE = true;
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		LEFT_MOUSE = false;
+	}
+
+	private float MOUSE_MENU_X = 0, MOUSE_MENU_Y = 0;
+	public void mouseDragged(MouseEvent e) {
+		mouseMoved(e);
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		MOUSE_MENU_X = e.getX();
+		MOUSE_MENU_Y = e.getY();
 	}
 
 }

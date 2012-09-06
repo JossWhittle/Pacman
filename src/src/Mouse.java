@@ -11,6 +11,7 @@ public class Mouse implements MouseMotionListener {
 	// Members
 	private int m_mx = 0, m_my = 0, m_screenXDiv2, m_screenYDiv2;
 	private int dmx = 0, dmy = 0, dx = 0, dy = 0;
+	private boolean m_hook = false;
 	
 	private Robot m_robot;
 
@@ -26,18 +27,20 @@ public class Mouse implements MouseMotionListener {
 	}
 
 	public void mouseMoved(MouseEvent e) {
-		m_mx = e.getXOnScreen();
-		m_my = e.getYOnScreen();
-		if (m_mx != m_screenXDiv2 || m_my != m_screenYDiv2) {
-			if (m_mx != m_screenXDiv2) {
-				dx = m_mx - m_screenXDiv2;
-				dmx += dx;
+		if (m_hook) {
+			m_mx = e.getXOnScreen();
+			m_my = e.getYOnScreen();
+			if (m_mx != m_screenXDiv2 || m_my != m_screenYDiv2) {
+				if (m_mx != m_screenXDiv2) {
+					dx = m_mx - m_screenXDiv2;
+					dmx += dx;
+				}
+				if (m_my != m_screenYDiv2) {
+					dy = m_my - m_screenYDiv2;
+					dmy += dy;
+				}
+				m_robot.mouseMove(m_screenXDiv2, m_screenYDiv2);
 			}
-			if (m_my != m_screenYDiv2) {
-				dy = m_my - m_screenYDiv2;
-				dmy += dy;
-			}
-			m_robot.mouseMove(m_screenXDiv2, m_screenYDiv2);
 		}
 	}
 	
@@ -47,6 +50,14 @@ public class Mouse implements MouseMotionListener {
 	
 	public int getDY() {
 		return dy;
+	}
+	
+	public void hook() {
+		m_hook = true;
+	}
+	
+	public void unhook() {
+		m_hook = false;
 	}
 	
 	public void clear() {
