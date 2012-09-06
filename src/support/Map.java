@@ -44,7 +44,9 @@ public class Map {
 		m_startX = 23;
 		m_startY = 14;
 		
-		sortSprites();
+		m_sprite_map = new int[SPRITE_MAP.length][SPRITE_MAP[0].length];
+		
+		resetSprites();
 	}
 	
 	/**
@@ -59,6 +61,16 @@ public class Map {
 				}
 			}
 		}
+	}
+	
+	public void resetSprites() {
+		for (int x = 0; x < m_sprite_map.length; x++) {
+			for (int y = 0; y < m_sprite_map[0].length; y++) {
+				m_sprite_map[x][y] = SPRITE_MAP[x][y];
+			}
+		}
+		
+		sortSprites();
 	}
 
 	/**
@@ -116,7 +128,8 @@ public class Map {
 		new Color(255,0,128)
 	};
 	
-	public int[][] m_sprite_map = {
+	public int[][] m_sprite_map = null;
+	private static final int[][] SPRITE_MAP = {
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{0,2,2,2,2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,2,2,2,0},
 		{0,2,0,0,0,0,2,0,0,0,0,0,2,0,0,2,0,0,0,0,0,2,0,0,0,0,2,0},

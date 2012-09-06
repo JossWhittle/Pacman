@@ -19,7 +19,7 @@ public class Player {
 	public static final int REL_MOVE_UP = 0, REL_MOVE_LEFT = 1, REL_MOVE_DOWN = 2, REL_MOVE_RIGHT = 3;
 
 	// Members
-	private float m_x, m_y, m_rot, m_turn = 0f, m_speed = 0f, m_rotspeed = 0f,
+	private float m_spawnX, m_spawnY, m_spawnRot, m_x, m_y, m_rot, m_turn = 0f, m_speed = 0f, m_rotspeed = 0f,
 			m_oldturn = 0f, m_stride, m_strideX = 0f, m_strafe = 0f, m_stamina = 0f;
 	
 	private int m_relDir = 0;
@@ -41,11 +41,21 @@ public class Player {
 	 *            The rotation angle in degrees
 	 */
 	public Player(float x, float y, float r, Block[][] map) {
+		m_spawnX = x;
+		m_spawnY = y;
+		m_spawnRot = r;
+		
 		m_x = x;
 		m_y = y;
 		m_rot = r;
 		
 		m_map = map;
+	}
+	
+	public void reset() {
+		m_x = m_spawnX;
+		m_y = m_spawnY;
+		m_rot = m_spawnRot;
 	}
 
 	/**

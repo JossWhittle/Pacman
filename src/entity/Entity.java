@@ -204,6 +204,23 @@ public abstract class Entity {
 
 		tick(timePassed, ticks, p);
 	}
+	
+	public void reset() {
+		m_x = m_spawnX;
+		m_y = m_spawnY;
+
+		m_direction = DIR_U;
+		m_goalX = m_x - 1;
+		m_goalY = m_y;
+		
+		m_walkIndex = 0;
+		m_directionIndex = IMG_MOVE_DOWN;
+
+		m_mode = MODE_CHASE;
+		m_walkCount = 0.0f;
+
+		m_visible = false;
+	}
 
 	/**
 	 * Update method to be implemented in extension

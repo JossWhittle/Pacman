@@ -17,10 +17,11 @@ public class Game extends GPanel {
 	private static final Color FLOOR = new Color(7,7,7), CEILING = new Color(7,7,7); // new Color(13,10,10)
 	private static final int MINIMAP_SIZE = 175, UBER = 10000, AMMO_DROP = 25;
 	
-	private static final int GAME_MODE_PLAY = 0, GAME_MODE_PAUSE = 1, GAME_MODE_DEAD = 2, GAME_MODE_DYING = 3, GAME_MODE_MENU = 4;
+	private static final int GAME_MODE_PLAY = 0, GAME_MODE_PAUSE = 1, GAME_MODE_DEAD = 2, GAME_MODE_DYING = 3, GAME_MODE_MENU = 4, GAME_MODE_HIGHSCORES = 5, GAME_MODE_SETTINGS = 6, GAME_MODE_PLAY_INTRO = 7;
+	private static final int MENU_ITEM_WIDTH = 512, MENU_ITEM_HEIGHT = 64, MENU_ITEM_OFFSET = 64, MENU_ITEM_1 = -2, MENU_ITEM_2 = -1, MENU_ITEM_3 = 0, MENU_ITEM_4 = 1, MENU_ITEM_5 = 2;
 	
 	// Members
-	private int m_gameMode = GAME_MODE_PLAY;
+	private int m_gameMode = GAME_MODE_MENU;
 	
 	private Map m_map;
 	private Player m_player;
@@ -30,7 +31,7 @@ public class Game extends GPanel {
 	
 	private DrawableImage m_gun, m_killSprite, m_menuPaused;
 	
-	private ClickableImage m_menuPlay, m_menuSettings, m_menuHighscores;
+	private ClickableImage m_menuPlay, m_menuResume, m_menuSettings, m_menuHighscores, m_menuExit, m_menuMenu;
 	private Cursor m_cursor;
 	
 	private ArrayList<Entity> m_entities;
@@ -122,11 +123,14 @@ public class Game extends GPanel {
 		int texSprintSymbol = Loader.loadImage("/resource/texture/hud/sprint.png");
 		int texAmmoSymbol = Loader.loadImage("/resource/texture/hud/ammo.png");
 		
-		int texCursor = Loader.loadImage("/resource/menu/cursor.png");
-		int texMenuPaused = Loader.loadImage("/resource/menu/banner_paused.png");
-		int texMenuPlay = Loader.loadImage("/resource/menu/item_play.png");
-		int texMenuHighScore = Loader.loadImage("/resource/menu/item_highscores.png");
-		int texMenuSettings = Loader.loadImage("/resource/menu/item_settings.png");
+		int texCursor = Loader.loadImage("/resource/texture/menu/cursor.png");
+		int texMenuPaused = Loader.loadImage("/resource/texture/menu/banner_paused.png");
+		int texMenuPlay = Loader.loadImage("/resource/texture/menu/item_play.png");
+		int texMenuResume = Loader.loadImage("/resource/texture/menu/item_resume.png");
+		int texMenuExit = Loader.loadImage("/resource/texture/menu/item_exit.png");
+		int texMenuMenu = Loader.loadImage("/resource/texture/menu/item_menu.png");
+		int texMenuHighscore = Loader.loadImage("/resource/texture/menu/item_highscores.png");
+		int texMenuSettings = Loader.loadImage("/resource/texture/menu/item_settings.png");
 		
 		BufferedImage[][][][] texture_walls = Content.processWalls(texWalls, Settings.STRIP_WIDTH);
 		
@@ -163,7 +167,13 @@ public class Game extends GPanel {
 		
 		m_cursor = new Cursor(texCursor,WIDTH/2.0f,HEIGHT/2.0f,20,20, 0.5f);
 		m_menuPaused = new DrawableImage(texMenuPaused,WIDTH/2.0f,50,512,64,256,0);
-		m_menuPlay = new ClickableImage(texMenuPlay,WIDTH/2.0f,HEIGHT/2.0f,512,64);
+		m_menuPlay = new ClickableImage(texMenuPlay,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_1 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
+		m_menuResume = new ClickableImage(texMenuResume,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_1 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
+		m_menuHighscores = new ClickableImage(texMenuHighscore,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_2 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
+		m_menuSettings = new ClickableImage(texMenuSettings,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_3 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
+		
+		m_menuExit = new ClickableImage(texMenuExit,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_4 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
+		m_menuMenu = new ClickableImage(texMenuMenu,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_2 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
 
 		m_map = new Map();
 
@@ -190,8 +200,6 @@ public class Game extends GPanel {
 		m_entities.add(new AI_Inky(texture_xeno, m_map.getEnemyX(), m_map.getEnemyY(), m_map.m_path_map));
 		m_entities.add(new AI_Clyde(texture_xeno, m_map.getEnemyX(), m_map.getEnemyY(), m_map.m_path_map));
 		
-		SCORE_X = WIDTH - 110;
-		SCORE_Y = MINIMAP_SIZE + 30;
 		m_pillStart = m_map.getSpriteCount();
 		
 		try {
@@ -209,7 +217,41 @@ public class Game extends GPanel {
 		if (m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
 			
 			m_cursor.update(timePassed,MOUSE_MENU_X, MOUSE_MENU_Y);
-			m_menuPlay.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+			
+			if (m_gameMode == GAME_MODE_MENU) {
+				m_menuPlay.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+				m_menuExit.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+				m_menuHighscores.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+				m_menuSettings.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+				
+				if (m_menuPlay.stateChanged() && m_menuPlay.isActive()) {
+					LEFT_MOUSE = false;
+					gotoResetPlay();
+				} else if (m_menuHighscores.stateChanged() && m_menuHighscores.isActive()) {
+					LEFT_MOUSE = false;
+					gotoHighscores();
+				} else if (m_menuSettings.stateChanged() && m_menuSettings.isActive()) {
+					LEFT_MOUSE = false;
+					gotoSettings();
+				} else if (m_menuExit.stateChanged() && m_menuExit.isActive()) {
+					LEFT_MOUSE = false;
+					System.exit(0);
+				}
+			} else {
+				m_menuResume.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+				m_menuMenu.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+				
+				if (m_menuResume.stateChanged() && m_menuResume.isActive()) {
+					LEFT_MOUSE = false;
+					gotoPlay();
+				} else if (m_menuMenu.stateChanged() && m_menuMenu.isActive()) {
+					LEFT_MOUSE = false;
+					gotoMenu();
+				}
+			}
+			
+			
+		} else if (m_gameMode == GAME_MODE_PLAY_INTRO) {
 			
 		} else if (m_gameMode == GAME_MODE_PLAY) {
 			m_levels[m_levelIndex].update(timePassed, m_entities);
@@ -290,7 +332,6 @@ public class Game extends GPanel {
 				}
 			}
 			
-			m_caster.update(m_player, m_entities);
 			m_minimap.update(m_player, m_entities);
 			m_vignette.update(timePassed);
 			
@@ -301,11 +342,13 @@ public class Game extends GPanel {
 			
 			
 		} 
+		
+		m_caster.update(m_player, m_entities);
 	}
 
 	protected void draw(Graphics2D g) {
 		// Draw code HERE (No update calls!)
-		if (m_gameMode == GAME_MODE_PLAY || m_gameMode == GAME_MODE_DYING || m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
+		if (m_gameMode == GAME_MODE_PLAY || m_gameMode == GAME_MODE_PLAY_INTRO || m_gameMode == GAME_MODE_DYING || m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
 			g.setColor(CEILING);
 			g.fillRect(0, 0, WIDTH, (int) (HEIGHT / 2.0));
 			g.setColor(FLOOR);
@@ -321,9 +364,15 @@ public class Game extends GPanel {
 				
 				if (m_gameMode == GAME_MODE_PAUSE) {
 					m_menuPaused.draw(g);
+					m_menuResume.draw(g);
+					m_menuMenu.draw(g);
+				} else {
+					m_menuPlay.draw(g);
+					m_menuExit.draw(g);
+					m_menuHighscores.draw(g);
+					m_menuSettings.draw(g);
 				}
 				
-				m_menuPlay.draw(g);
 			} else {
 				m_gun.draw(g);
 			}
@@ -334,7 +383,7 @@ public class Game extends GPanel {
 				m_cursor.draw(g);
 			}
 			
-			if (m_gameMode == GAME_MODE_PLAY) {
+			if (m_gameMode == GAME_MODE_PLAY || m_gameMode == GAME_MODE_PLAY_INTRO) {
 				m_minimap.draw(g);
 				m_hud.draw(g);
 			}
@@ -361,18 +410,29 @@ public class Game extends GPanel {
 	private void nextLevel() {
 		m_level++;
 		
-		if (m_level >= 2 && m_level < 5) {
+		if (m_level >= 1 && m_level < 4) {
 			m_levelIndex = 1;
-		} else if (m_level >= 5) {
+		} else if (m_level >= 4) {
 			m_levelIndex = 2;
 		}
+		resetLevel();
 	}
 	
 	private void resetLevel() {
+		m_player.reset();
 		
+		m_map.resetSprites();
+		
+		for (int i = 0; i < m_entities.size(); i++) {
+			m_entities.get(i).reset();
+		}
+		
+		m_blackFade.setAlpha(0f);
+		m_blackFade.setFadeTarget(new float[][]{{0.25f, 2000f},{1f, 1000f}});
 	}
 	
 	private void gotoMenu() {
+		m_player.reset();
 		m_fpsMouse.unhook();
 		m_gameMode = GAME_MODE_MENU;
 	}
@@ -387,12 +447,26 @@ public class Game extends GPanel {
 		m_gameMode = GAME_MODE_PLAY;
 	}
 	
+	private void gotoResetPlay() {
+		resetLevel();
+		m_fpsMouse.hook();
+		m_gameMode = GAME_MODE_PLAY;
+	}
+	
 	private void gotoDying() {
 		m_gameMode = GAME_MODE_DYING;
 	}
 	
 	private void gotoDead() {
 		m_gameMode = GAME_MODE_DEAD;
+	}
+	
+	private void gotoHighscores() {
+		m_gameMode = GAME_MODE_HIGHSCORES;
+	}
+	
+	private void gotoSettings() {
+		m_gameMode = GAME_MODE_SETTINGS;
 	}
 	
 	/*
