@@ -172,7 +172,7 @@ public class Game extends GPanel {
 		// Variable initialization code HERE
 		
 		m_cursor = new Cursor(texCursor,WIDTH/2.0f,HEIGHT/2.0f,20,20, 0.5f);
-		m_menuPaused = new DrawableImage(texMenuPaused,WIDTH/2.0f,50,512,64,256,0);
+		m_menuPaused = new DrawableImage(texMenuPaused,WIDTH/2.0f,50,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT,256,0);
 		m_menuPlay = new ClickableImage(texMenuPlay,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_1 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
 		m_menuResume = new ClickableImage(texMenuResume,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_1 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
 		m_menuHighscores = new ClickableImage(texMenuHighscore,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_2 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
@@ -181,10 +181,10 @@ public class Game extends GPanel {
 		m_menuExit = new ClickableImage(texMenuExit,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_4 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
 		m_menuMenu = new ClickableImage(texMenuMenu,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_2 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
 
-		m_menuConfirmQuit = new DrawableImage(texMenuConfirmQuit,WIDTH/2.0f,50,512,64,256,0);
-		m_menuConfirmMenu = new DrawableImage(texMenuConfirmMenu,WIDTH/2.0f,50,512,64,256,0);
-		m_menuConfirmYes = new ClickableImage(texMenuConfirmYes,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_1 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
-		m_menuConfirmNo = new ClickableImage(texMenuConfirmNo,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_2 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
+		m_menuConfirmQuit = new DrawableImage(texMenuConfirmQuit,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_1 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT,256,64,0,0.6f);
+		m_menuConfirmMenu = new DrawableImage(texMenuConfirmMenu,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_1 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT,256,64,0,0.6f);
+		m_menuConfirmYes = new ClickableImage(texMenuConfirmYes,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_2 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
+		m_menuConfirmNo = new ClickableImage(texMenuConfirmNo,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_3 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
 		
 		
 		m_map = new Map();
