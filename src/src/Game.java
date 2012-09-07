@@ -350,9 +350,9 @@ public class Game extends GPanel {
 		// Draw code HERE (No update calls!)
 		if (m_gameMode == GAME_MODE_PLAY || m_gameMode == GAME_MODE_PLAY_INTRO || m_gameMode == GAME_MODE_DYING || m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
 			g.setColor(CEILING);
-			g.fillRect(0, 0, WIDTH, (int) (HEIGHT / 2.0));
+			g.fillRect(0, 0, WIDTH, (int) (HEIGHT / 2.0f));
 			g.setColor(FLOOR);
-			g.fillRect(0, (int) (HEIGHT / 2.0), WIDTH, (int) (HEIGHT / 2.0));
+			g.fillRect(0, (int) (HEIGHT / 2.0f), WIDTH, (int) (HEIGHT / 2.0f));
 			
 			m_caster.draw(g);
 			

@@ -29,7 +29,7 @@ public class Fader extends DrawableImage {
 		if (m_fading) {
 			m_fx += timePassed;
 			
-			setAlpha(fadeFunction((float)m_fx,m_start,m_targets[m_tid][0]-m_start,(float)m_targets[m_tid][1]));
+			setAlpha(Ease.quadInOut((float)m_fx,m_start,m_targets[m_tid][0]-m_start,(float)m_targets[m_tid][1]));
 			
 			if (m_fx >= (float)m_targets[m_tid][1]) {
 				m_fading = false;
@@ -52,16 +52,6 @@ public class Fader extends DrawableImage {
 		}
 		g.drawImage(getImg(), (int) (m_x - m_ox), (int) (m_y - m_oy), (int) m_w,
 				(int) m_h, null);
-	}
-	
-	private float fadeFunction(float t, float b, float c, float d) {
-		
-		t /= d / 2f;
-		if (t < 1f) return Math.min(Math.max((c/2f)*t*t + b, 0),1);
-		t--;
-		return Math.min(Math.max((-c/2f) * (t*(t-2f) - 1f) + b, 0),1);
-		
-		// return (float) Math.min(Math.max((-c) * Math.cos((t/d) * (Math.PI/2)) + c + b, 0),1);
 	}
 	
 	public boolean isFading() {
