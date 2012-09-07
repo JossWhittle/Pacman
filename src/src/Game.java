@@ -17,8 +17,10 @@ public class Game extends GPanel {
 	private static final Color FLOOR = new Color(7,7,7), CEILING = new Color(7,7,7); // new Color(13,10,10)
 	private static final int MINIMAP_SIZE = 175, UBER = 10000, AMMO_DROP = 25;
 	
-	private static final int GAME_MODE_PLAY = 0, GAME_MODE_PAUSE = 1, GAME_MODE_DEAD = 2, GAME_MODE_DYING = 3, GAME_MODE_MENU = 4, GAME_MODE_HIGHSCORES = 5, GAME_MODE_SETTINGS = 6, GAME_MODE_PLAY_INTRO = 7;
+	private static final int GAME_MODE_PLAY = 0, GAME_MODE_PAUSE = 1, GAME_MODE_DEAD = 2, GAME_MODE_DYING = 3, GAME_MODE_MENU = 4, GAME_MODE_HIGHSCORES = 5, GAME_MODE_SETTINGS = 6, GAME_MODE_PLAY_INTRO = 7, GAME_MODE_CONFIRM_QUIT = 8, GAME_MODE_CONFIRM_MENU = 9;
 	private static final int MENU_ITEM_WIDTH = 512, MENU_ITEM_HEIGHT = 64, MENU_ITEM_OFFSET = 64, MENU_ITEM_1 = -2, MENU_ITEM_2 = -1, MENU_ITEM_3 = 0, MENU_ITEM_4 = 1, MENU_ITEM_5 = 2;
+	
+	private static final float PLAYER_DEF_ROT = 180f, PLAYER_INTRO_ROT = 90f, GAME_MODE_PLAY_INTRO_DURATION = 1000f;
 	
 	// Members
 	private int m_gameMode = GAME_MODE_MENU;
@@ -29,9 +31,9 @@ public class Game extends GPanel {
 	private Minimap m_minimap;
 	private HUD m_hud;
 	
-	private DrawableImage m_gun, m_killSprite, m_menuPaused;
+	private DrawableImage m_gun, m_killSprite, m_menuPaused, m_menuConfirmQuit, m_menuConfirmMenu;
 	
-	private ClickableImage m_menuPlay, m_menuResume, m_menuSettings, m_menuHighscores, m_menuExit, m_menuMenu;
+	private ClickableImage m_menuPlay, m_menuResume, m_menuSettings, m_menuHighscores, m_menuExit, m_menuMenu, m_menuConfirmYes, m_menuConfirmNo;
 	private Cursor m_cursor;
 	
 	private ArrayList<Entity> m_entities;
@@ -47,7 +49,7 @@ public class Game extends GPanel {
 
 	private int m_uber = 0, m_ammo = 0, m_pillCount = 0, m_pillStart, SCORE_X, SCORE_Y;
 	
-	private float m_mouseX = 0.0f;
+	private float m_mouseX = 0.0f, m_gameIntroRot = PLAYER_DEF_ROT, m_gameIntroTime = 0;
 	
 	private int m_level = 0, m_levelIndex = 0;
 	private GameLevel[] m_levels = {
@@ -126,6 +128,10 @@ public class Game extends GPanel {
 		int texCursor = Loader.loadImage("/resource/texture/menu/cursor.png");
 		int texMenuPaused = Loader.loadImage("/resource/texture/menu/banner_paused.png");
 		int texMenuPlay = Loader.loadImage("/resource/texture/menu/item_play.png");
+		int texMenuConfirmQuit = Loader.loadImage("/resource/texture/menu/item_confirm_quit.png");
+		int texMenuConfirmMenu = Loader.loadImage("/resource/texture/menu/item_confirm_menu.png");
+		int texMenuConfirmYes = Loader.loadImage("/resource/texture/menu/item_yes.png");
+		int texMenuConfirmNo = Loader.loadImage("/resource/texture/menu/item_no.png");
 		int texMenuResume = Loader.loadImage("/resource/texture/menu/item_resume.png");
 		int texMenuExit = Loader.loadImage("/resource/texture/menu/item_exit.png");
 		int texMenuMenu = Loader.loadImage("/resource/texture/menu/item_menu.png");
@@ -175,6 +181,12 @@ public class Game extends GPanel {
 		m_menuExit = new ClickableImage(texMenuExit,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_4 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
 		m_menuMenu = new ClickableImage(texMenuMenu,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_2 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
 
+		m_menuConfirmQuit = new DrawableImage(texMenuConfirmQuit,WIDTH/2.0f,50,512,64,256,0);
+		m_menuConfirmMenu = new DrawableImage(texMenuConfirmMenu,WIDTH/2.0f,50,512,64,256,0);
+		m_menuConfirmYes = new ClickableImage(texMenuConfirmYes,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_1 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
+		m_menuConfirmNo = new ClickableImage(texMenuConfirmNo,WIDTH/2.0f,(HEIGHT/2.0f)+(MENU_ITEM_2 * MENU_ITEM_HEIGHT)+MENU_ITEM_OFFSET,MENU_ITEM_WIDTH,MENU_ITEM_HEIGHT);
+		
+		
 		m_map = new Map();
 
 		m_player = new Player(m_map.getStartX()+0.5f, m_map.getStartY()+0.5f, 180f, m_map.m_map);
@@ -235,7 +247,7 @@ public class Game extends GPanel {
 					gotoSettings();
 				} else if (m_menuExit.stateChanged() && m_menuExit.isActive()) {
 					LEFT_MOUSE = false;
-					System.exit(0);
+					gotoConfirmQuit();
 				}
 			} else {
 				m_menuResume.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
@@ -246,12 +258,50 @@ public class Game extends GPanel {
 					gotoPlay();
 				} else if (m_menuMenu.stateChanged() && m_menuMenu.isActive()) {
 					LEFT_MOUSE = false;
-					gotoMenu();
+					gotoConfirmMenu();
 				}
 			}
 			
 			
+		} else if (m_gameMode == GAME_MODE_CONFIRM_QUIT || m_gameMode == GAME_MODE_CONFIRM_MENU) {
+			
+			m_cursor.update(timePassed,MOUSE_MENU_X, MOUSE_MENU_Y);
+			
+			m_menuConfirmYes.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+			m_menuConfirmNo.update(timePassed, MOUSE_MENU_X, MOUSE_MENU_Y, LEFT_MOUSE);
+			
+			if (m_gameMode == GAME_MODE_CONFIRM_QUIT) {
+				
+				if (m_menuConfirmYes.stateChanged() && m_menuConfirmYes.isActive()) {
+					LEFT_MOUSE = false;
+					System.exit(0);
+				} else if (m_menuConfirmNo.stateChanged() && m_menuConfirmNo.isActive()) {
+					LEFT_MOUSE = false;
+					gotoMenu();
+				}
+				
+			} else {
+				
+				if (m_menuConfirmYes.stateChanged() && m_menuConfirmYes.isActive()) {
+					LEFT_MOUSE = false;
+					gotoMenu();
+				} else if (m_menuConfirmNo.stateChanged() && m_menuConfirmNo.isActive()) {
+					LEFT_MOUSE = false;
+					gotoPause();
+				}
+
+			}
+			
 		} else if (m_gameMode == GAME_MODE_PLAY_INTRO) {
+			
+			m_gameIntroTime += timePassed;
+			m_player.setRot(Ease.sineInOut(m_gameIntroTime, PLAYER_DEF_ROT, PLAYER_INTRO_ROT, GAME_MODE_PLAY_INTRO_DURATION));
+			
+			if (m_gameIntroTime >= GAME_MODE_PLAY_INTRO_DURATION) {
+				m_player.setRot(PLAYER_DEF_ROT + PLAYER_INTRO_ROT);
+				
+				gotoPlay();
+			}
 			
 		} else if (m_gameMode == GAME_MODE_PLAY) {
 			m_levels[m_levelIndex].update(timePassed, m_entities);
@@ -348,7 +398,7 @@ public class Game extends GPanel {
 
 	protected void draw(Graphics2D g) {
 		// Draw code HERE (No update calls!)
-		if (m_gameMode == GAME_MODE_PLAY || m_gameMode == GAME_MODE_PLAY_INTRO || m_gameMode == GAME_MODE_DYING || m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
+		if (m_gameMode == GAME_MODE_PLAY || m_gameMode == GAME_MODE_PLAY_INTRO || m_gameMode == GAME_MODE_DYING || m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE || m_gameMode == GAME_MODE_CONFIRM_QUIT || m_gameMode == GAME_MODE_CONFIRM_MENU) {
 			g.setColor(CEILING);
 			g.fillRect(0, 0, WIDTH, (int) (HEIGHT / 2.0f));
 			g.setColor(FLOOR);
@@ -373,13 +423,24 @@ public class Game extends GPanel {
 					m_menuSettings.draw(g);
 				}
 				
+			} else if (m_gameMode == GAME_MODE_CONFIRM_QUIT || m_gameMode == GAME_MODE_CONFIRM_MENU) {
+				
+				if (m_gameMode == GAME_MODE_CONFIRM_QUIT) {
+					m_menuConfirmQuit.draw(g);
+				} else {
+					m_menuConfirmMenu.draw(g);
+				}
+				
+				m_menuConfirmYes.draw(g);
+				m_menuConfirmNo.draw(g);
+				
 			} else {
 				m_gun.draw(g);
 			}
 			
 			m_vignette.draw(g);
 			
-			if (m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE) {
+			if (m_gameMode == GAME_MODE_MENU || m_gameMode == GAME_MODE_PAUSE || m_gameMode == GAME_MODE_CONFIRM_QUIT || m_gameMode == GAME_MODE_CONFIRM_MENU) {
 				m_cursor.draw(g);
 			}
 			
@@ -394,11 +455,6 @@ public class Game extends GPanel {
 		} else if (m_gameMode == GAME_MODE_DEAD) {
 			
 		}
-		
-		/*g.setColor(Color.yellow);
-		g.drawString("" + m_pillCount, SCORE_X, SCORE_Y);
-		g.drawString("/", SCORE_X + 40, SCORE_Y);
-		g.drawString("" + m_pillStart, SCORE_X + 50, SCORE_Y);*/
 		
 	}
 	
@@ -450,7 +506,17 @@ public class Game extends GPanel {
 	private void gotoResetPlay() {
 		resetLevel();
 		m_fpsMouse.hook();
-		m_gameMode = GAME_MODE_PLAY;
+		m_gameMode = GAME_MODE_PLAY_INTRO;
+		m_gameIntroRot = PLAYER_DEF_ROT;
+		m_gameIntroTime = 0;
+	}
+	
+	private void gotoConfirmQuit() {
+		m_gameMode = GAME_MODE_CONFIRM_QUIT;
+	}
+	
+	private void gotoConfirmMenu() {
+		m_gameMode = GAME_MODE_CONFIRM_MENU;
 	}
 	
 	private void gotoDying() {
@@ -508,7 +574,7 @@ public class Game extends GPanel {
 		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			if (m_gameMode == GAME_MODE_MENU) {
-				System.exit(0);
+				// System.exit(0);
 			} else if (m_gameMode == GAME_MODE_PLAY) {
 				gotoPause();
 			} else if (m_gameMode == GAME_MODE_PAUSE) {
