@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
 
 /**
  * Main GUI window
@@ -17,23 +18,11 @@ public class GUI_Main {
 	// Constants
 
 	// Members
-	private JFrame m_frame;
+	private GameFrame m_frame;
 	private GPanel m_canvas;
 	private static boolean m_running = false;
 	private long m_startTime, m_accTime, m_currentTime;
 	int m_wait, m_timePassed;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			Settings.loadSettings("/resource/config/game.ini");
-			new GUI_Main();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * Create the application.
@@ -54,7 +43,14 @@ public class GUI_Main {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		m_frame = new JFrame();
+		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception ex) {
+			// Oh well... guess it will have to be ugly
+		}
+		
+		m_frame = new GameFrame();
 		m_frame.setFocusable(false);
 		m_frame.setResizable(false);
 		m_frame.setLayout(null);
@@ -63,10 +59,9 @@ public class GUI_Main {
 		m_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		m_frame.setLocationRelativeTo(null);
 		m_frame.setFont(new Font("Arial", Font.PLAIN, 24));
-		m_frame.setTitle("Engine fD");
+		m_frame.setTitle("LV426 - Pacman");
 		m_frame.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(
 				new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "blank cursor"));
-		m_frame.setVisible(true);
 
 		m_running = true;
 
@@ -74,6 +69,8 @@ public class GUI_Main {
 		m_wait = m_canvas.getWait();
 		m_frame.add(m_canvas);
 		m_canvas.grabFocus();
+		
+		m_frame.setVisible(true);
 	}
 
 	/**

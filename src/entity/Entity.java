@@ -356,4 +356,8 @@ public abstract class Entity {
 		m_mode = MODE_DEAD;
 	}
 
+	public boolean isAlive() {
+		return (m_mode != MODE_DEAD) || (m_mode != MODE_DYING);
+	}
+
 }

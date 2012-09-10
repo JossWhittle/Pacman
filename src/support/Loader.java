@@ -1,7 +1,9 @@
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -22,6 +24,9 @@ public class Loader {
 	private static int m_index = 0;
 	private static BufferedImage[] m_content = new BufferedImage[CONTENT_LIMIT];
 
+	private static int m_indexFont = 0;
+	private static Font[] m_contentFont = new Font[CONTENT_LIMIT];
+	
 	private static int m_indexSound = 0;
 	private static AudioInputStream[] m_contentSound = new AudioInputStream[CONTENT_LIMIT];
 
@@ -213,6 +218,35 @@ public class Loader {
 			
 			System.out.println("[Success]");
 			return m_indexSound - 1;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.out.println("[Fail]");
+		}
+		return -1;
+	}
+	
+	public static Font getFont(int id) {
+		try {
+			return m_contentFont[id];
+		} catch (Exception ex) {
+			// ex.printStackTrace();
+		}
+		return null;
+	}
+
+	public static int loadFont(String dir, float size) {
+		System.out.print("Loading \""+dir+"\" ");
+		
+		try {
+			
+			InputStream is = Loader.class.getResourceAsStream(dir);
+		    Font f = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(size);
+			
+			m_contentFont[m_indexFont] = f;
+			m_indexFont++;
+			
+			System.out.println("[Success]");
+			return m_indexFont - 1;
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("[Fail]");

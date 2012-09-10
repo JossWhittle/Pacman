@@ -29,7 +29,7 @@ public class Fader extends DrawableImage {
 		if (m_fading) {
 			m_fx += timePassed;
 			
-			setAlpha(Ease.quadInOut((float)m_fx,m_start,m_targets[m_tid][0]-m_start,(float)m_targets[m_tid][1]));
+			setAlpha(Math.max(Math.min(Ease.quadInOut((float)m_fx,m_start,m_targets[m_tid][0]-m_start,(float)m_targets[m_tid][1]), 1), 0));
 			
 			if (m_fx >= (float)m_targets[m_tid][1]) {
 				m_fading = false;

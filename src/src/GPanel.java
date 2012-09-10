@@ -41,6 +41,8 @@ public abstract class GPanel extends JPanel implements MouseListener,
 		m_wait = (int) (SECOND / FPS);
 		buildRH();
 		
+		setIgnoreRepaint(true);
+		
 		// Positioning
 		setLayout(null);
 		setSize(WIDTH, HEIGHT);
@@ -57,7 +59,8 @@ public abstract class GPanel extends JPanel implements MouseListener,
 		setForeground(FG);
 		setFocusable(true);
 		setDoubleBuffered(true);
-		grabFocus();
+		grabFocus();          
+        
 	}
 
 	/**
@@ -147,14 +150,14 @@ public abstract class GPanel extends JPanel implements MouseListener,
 	 * @return The rendering hints
 	 */
 	private static void buildRH() {
-		m_rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		m_rh = new RenderingHints(RenderingHints.KEY_RENDERING,
+				RenderingHints.VALUE_RENDER_QUALITY);
 		
 		/*m_rh.put(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);*/
-		 
-		m_rh.put(RenderingHints.KEY_RENDERING,
-				RenderingHints.VALUE_RENDER_QUALITY);
+				RenderingHints.VALUE_ANTIALIAS_ON); 
+		m_rh.put(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);*/
+		
 		m_rh.put(RenderingHints.KEY_INTERPOLATION,
 				RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		m_rh.put(RenderingHints.KEY_COLOR_RENDERING,
