@@ -14,7 +14,7 @@ public class LV426 {
 		try {
 			DatabaseManager.Open();
 			initDatabase();
-			Settings.loadSettings();
+			Stitch.loadSettings();
 			
 			GUI_Main window = new GUI_Main();
 		} catch (Exception e) {
@@ -48,7 +48,8 @@ public class LV426 {
 				+ "INSERT INTO `Settings` (`id`,`key`,`val`) VALUES ('setting','fov','60.0f');"
 				+ "INSERT INTO `Settings` (`id`,`key`,`val`) VALUES ('setting','mouse','0.15f');"
 				+ "INSERT INTO `Settings` (`id`,`key`,`val`) VALUES ('setting','res_x','1280');"
-				+ "INSERT INTO `Settings` (`id`,`key`,`val`) VALUES ('setting','res_y','720');";
+				+ "INSERT INTO `Settings` (`id`,`key`,`val`) VALUES ('setting','res_y','720');"
+				+ "INSERT INTO `Settings` (`id`,`key`,`val`) VALUES ('setting','aspect','16:9');";
 		
 		String fillScores = 
 				"INSERT INTO `Scores` (`name`,`date`,`score`) VALUES ('Joss','n/a',1024);"

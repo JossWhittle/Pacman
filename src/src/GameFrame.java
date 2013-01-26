@@ -12,20 +12,20 @@ public class GameFrame extends JFrame {
 
 	public GameFrame() {
 		
-		//if (Settings.FULL_SCREEN) {
+		if (Stitch.FULL_SCREEN) {
 			setIgnoreRepaint(true);
 	    	setUndecorated(true);
-		//}
+		}
 	    
 	    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	    GraphicsDevice gd = ge.getDefaultScreenDevice();
 	    GraphicsConfiguration gc = gd.getDefaultConfiguration();
 
-	    if (Settings.FULL_SCREEN) {
+	    if (Stitch.FULL_SCREEN) {
 	    	gd.setFullScreenWindow(this);
 		    
 	        if(gd.isDisplayChangeSupported()) {
-	        	gd.setDisplayMode(new DisplayMode(Settings.RES_WIDTH, Settings.RES_HEIGHT, 32, DisplayMode.REFRESH_RATE_UNKNOWN));
+	        	gd.setDisplayMode(new DisplayMode(Stitch.RES_WIDTH, Stitch.RES_HEIGHT, 32, DisplayMode.REFRESH_RATE_UNKNOWN));
 	        }
 	    }
 	    

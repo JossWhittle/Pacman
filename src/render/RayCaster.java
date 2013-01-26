@@ -31,18 +31,18 @@ public class RayCaster extends SimpleDrawable {
 	 * Constructor
 	 */
 	public RayCaster(BufferedImage[][][][] texWalls, int texPill, int texMega, Block[][] map, int[][] sprite_map) {
-		super(0, 0, Settings.RES_WIDTH, Settings.RES_HEIGHT, 0, 0);
+		super(0, 0, Stitch.RES_WIDTH, Stitch.RES_HEIGHT, 0, 0);
 		m_texWalls = texWalls;
 		m_texPill = Loader.getImage(texPill);
 		m_texMega = Loader.getImage(texMega);
 
 		m_renderQueue = new RenderQueue();
 
-		FOV = (float) Math.toRadians(Settings.FIELD_OF_VIEW);
+		FOV = (float) Math.toRadians(Stitch.FIELD_OF_VIEW);
 		FOV_H = FOV / 2.0f;
 		PI2 = (float) (Math.PI * 2.0f);
 
-		RAYS = (int) Math.ceil(getW() / Settings.STRIP_WIDTH);
+		RAYS = (int) Math.ceil(getW() / Stitch.STRIP_WIDTH);
 		VIEW_DIST = (getW() / 2.0f) / (float)Math.tan(FOV_H);
 		VIEW_DIST2 = VIEW_DIST * VIEW_DIST;
 		
@@ -78,7 +78,7 @@ public class RayCaster extends SimpleDrawable {
 
 		for (int i = 0; i < RAYS; i++) {
 			float rayScreenPos = (float) (((float) (-RAYS) / 2.0f) + i)
-					* (float) Settings.STRIP_WIDTH;
+					* (float) Stitch.STRIP_WIDTH;
 			float rayViewDist = (float) Math.sqrt(rayScreenPos * rayScreenPos
 					+ VIEW_DIST2);
 			float rayAngle = (float) Math.asin(rayScreenPos / rayViewDist);
@@ -299,12 +299,12 @@ public class RayCaster extends SimpleDrawable {
 			Wall wall = block.getFace(angle, horizontal);
 
 			int shade = (horizontal ? 0 : 1);
-			int texel = (int) Math.min(Math.floor(texX * (Settings.TEX_WIDTH / Settings.STRIP_WIDTH)), (Settings.TEX_WIDTH / Settings.STRIP_WIDTH) - 1);
+			int texel = (int) Math.min(Math.floor(texX * (Stitch.TEX_WIDTH / Stitch.STRIP_WIDTH)), (Stitch.TEX_WIDTH / Stitch.STRIP_WIDTH) - 1);
 
 			m_renderQueue.addJob(new DepthImage(
 					m_texWalls[wall.getSet()][wall.getTile()][shade][texel],
-					(float) (strip * Settings.STRIP_WIDTH),
-					top, (float) Settings.STRIP_WIDTH,
+					(float) (strip * Stitch.STRIP_WIDTH),
+					top, (float) Stitch.STRIP_WIDTH,
 					stripHeight, dist), dist);
 		}
 	}

@@ -154,7 +154,7 @@ public class Game extends GPanel {
 		int texMenuName = Loader.loadImage("/resource/texture/menu/banner_name.png");
 		int texNameBox = Loader.loadImage("/resource/texture/menu/name_box.png");
 		
-		BufferedImage[][][][] texture_walls = Content.processWalls(texWalls, Settings.STRIP_WIDTH);
+		BufferedImage[][][][] texture_walls = Content.processWalls(texWalls, Stitch.STRIP_WIDTH);
 		
 		BufferedImage[][] texture_xeno = {
 			Loader.splitImage(texXeno[0], 50),
@@ -557,7 +557,7 @@ public class Game extends GPanel {
 	
 	private void normalizeMouse(int time_d, float realx) {
 	    float d = (float)(1.0f - Math.exp(Math.log(0.5f) * 100.0f * (float)(time_d / 1000.0f)));
-	    m_mouseX += ((realx * Settings.MOUSE_X) - m_mouseX) * d;
+	    m_mouseX += ((realx * Stitch.MOUSE_X) - m_mouseX) * d;
 	}
 	
 	private void nextLevel() {

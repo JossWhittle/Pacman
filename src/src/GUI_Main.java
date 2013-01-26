@@ -54,8 +54,8 @@ public class GUI_Main {
 		m_frame.setFocusable(false);
 		m_frame.setResizable(false);
 		m_frame.setLayout(null);
-		m_frame.setPreferredSize(new Dimension(Settings.RES_WIDTH, Settings.RES_HEIGHT));
-		m_frame.setBounds(100, 100, Settings.RES_WIDTH, Settings.RES_HEIGHT);
+		m_frame.setPreferredSize(new Dimension(Stitch.RES_WIDTH, Stitch.RES_HEIGHT));
+		m_frame.setBounds(100, 100, Stitch.RES_WIDTH, Stitch.RES_HEIGHT);
 		m_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		m_frame.setLocationRelativeTo(null);
 		m_frame.setFont(new Font("Arial", Font.PLAIN, 24));

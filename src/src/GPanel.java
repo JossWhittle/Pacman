@@ -26,7 +26,7 @@ public abstract class GPanel extends JPanel implements MouseListener,
 	private static final Color BG = Color.gray, FG = Color.black;
 
 	// Members
-	protected static int WIDTH = Settings.RES_WIDTH, HEIGHT = Settings.RES_HEIGHT;
+	protected static int WIDTH = Stitch.RES_WIDTH, HEIGHT = Stitch.RES_HEIGHT;
 	protected static Rectangle SCREEN = new Rectangle(0, 0, WIDTH, HEIGHT);
 	
 	private int m_acc = 0, m_timeSec = 0, m_fCount = 0, m_fps = 0, m_wait;
